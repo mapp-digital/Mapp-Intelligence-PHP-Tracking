@@ -1,0 +1,32 @@
+# Composer
+composer.lock
+vendor
+composer.phar
+
+# Coverage
+**/reports/*
+**/coverage/*
+
+# JetBrains
+.idea
+.project
+.settings
+.idea/*
+**/.idea/*
+*.iml
+
+# VS Code
+.vscode/*
+**/.vscode/*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+**/.DS_Store
+
+# Temp
+tmp/*
+**/tmp/*

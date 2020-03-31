@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         verbose="true"
+         colors="true"
+         bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="PHP Tracking Library">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">lib</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./coverage" lowUpperBound="30" highLowerBound="70"/>
+        <log type="testdox-html" target="./coverage/testdox.html"/>
+
+        <log type="coverage-clover" target="./coverage/coverage.xml"/>
+        <log type="junit" target="./coverage/logfile.xml"/>
+    </logging>
+
+    <listeners>
+        <listener class="MappIntelligenceUnitUtil" file="./tests/MappIntelligenceUnitUtil.php" />
+    </listeners>
+
+    <php>
+        <const name="PHPUNIT_TESTSUITE" value="true"/>
+    </php>
+</phpunit>
