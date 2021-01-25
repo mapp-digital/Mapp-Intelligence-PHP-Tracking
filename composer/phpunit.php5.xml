@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         verbose="true"
+         colors="true"
+         bootstrap="vendor_php5/autoload.php">
+    <testsuites>
+        <testsuite name="PHP Tracking Library">
+            <directory suffix="Test.php">../tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../lib</directory>
+            <exclude>
+                <file>../lib/MappIntelligenceConsumer.php</file>
+                <file>../lib/MappIntelligenceCookie.php</file>
+                <file>../lib/MappIntelligenceLogger.php</file>
+
+                <file>../lib/MappIntelligenceCronjob.php</file>
+                <file>../lib/MappIntelligenceCustomParameter.php</file>
+                <file>../lib/MappIntelligenceMessages.php</file>
+                <file>../lib/MappIntelligenceParameter.php</file>
+                <file>../lib/MappIntelligenceServer2Server.php</file>
+                <file>../lib/Config/MappIntelligenceProperties.php</file>
+                <file>../lib/Consumer/MappIntelligenceConsumerFileRotationException.php</file>
+                <file>../lib/Consumer/MappIntelligenceConsumerType.php</file>
+                <file>../lib/Cronjob/MappIntelligenceCLIException.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="coverage/php5" lowUpperBound="30" highLowerBound="70"/>
+        <log type="testdox-html" target="coverage/php5/testdox.html"/>
+
+        <log type="coverage-clover" target="coverage/php5/coverage.xml"/>
+        <log type="junit" target="coverage/php5/logfile.xml"/>
+    </logging>
+
+    <listeners>
+        <listener class="MappIntelligenceUnitUtil" file="../tests/MappIntelligenceUnitUtil5.php" />
+    </listeners>
+
+    <php>
+        <const name="PHPUNIT_TESTSUITE" value="true"/>
+        <const name="MAIN_DIRECTORY" value="../"/>
+    </php>
+</phpunit>

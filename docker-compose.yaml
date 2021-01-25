@@ -1,0 +1,17 @@
+version: "3.3"
+
+services:
+  php:
+    build:
+      context: .
+      args:
+        CONTAINER_VERSION: ${CONTAINER_VERSION}
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+        TYPE: ${TYPE}
+        RUNKIT_VERSION: ${RUNKIT_VERSION}
+        XDEBUG_VERSION: ${XDEBUG_VERSION}
+        PHPUNIT_VERSION: ${PHPUNIT_VERSION}
+      dockerfile: Dockerfile
+    volumes:
+      - "./:/app"

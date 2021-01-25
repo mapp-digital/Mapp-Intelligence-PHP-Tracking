@@ -1,9 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../MappIntelligenceExtendsTestCase.php';
+
 /**
  * Class MappIntelligenceOrderTest
  */
-class MappIntelligenceOrderTest extends PHPUnit\Framework\TestCase
+class MappIntelligenceOrderTest extends MappIntelligenceExtendsTestCase
 {
     public function testNewOrderWithoutValue()
     {

@@ -1,14 +1,23 @@
 <?php
 
-require_once __DIR__ . '/../MappIntelligence.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 require_once __DIR__ . '/../Config/MappIntelligenceConfig.php';
 
 /**
  * Class MappIntelligenceEnrichment
  */
-class MappIntelligenceEnrichment extends MappIntelligenceConfig
+class MappIntelligenceEnrichment
 {
-    private $everId_;
+    private $domains;
+    private $trackId;
+    private $trackDomain;
+    private $useParamsForDefaultPageName;
+    private $everId;
+    private $userAgent;
+    private $remoteAddress;
+    private $referrerURL;
+    private $requestURL;
+    private $cookie;
 
     /**
      * MappIntelligenceEnrichment constructor.
@@ -16,9 +25,18 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     protected function __construct($config = array())
     {
-        parent::__construct($config);
+        $this->domains = $config['domain'];
+        $this->trackId = $config['trackId'];
+        $this->trackDomain = $config['trackDomain'];
+        $this->useParamsForDefaultPageName = $config['useParamsForDefaultPageName'];
 
-        $this->everId_ = $this->getUserId();
+        $this->userAgent = $config['userAgent'];
+        $this->remoteAddress = $config['remoteAddress'];
+        $this->referrerURL = $config['referrerURL'];
+        $this->requestURL = $config['requestURL'];
+        $this->cookie = $config['cookie'];
+
+        $this->everId = $this->getUserId();
     }
 
     /**
@@ -53,20 +71,15 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
             return false;
         }
 
-        $domains = $this->config_['domain'];
         $referrerDomain = $this->getReferrerDomain($referrer);
         $isOwnDomain = false;
-        for ($i = 0; $i < count($domains); $i++) {
-            if (preg_match('/^\/.+\/$/', $domains[$i])) {
-                try {
-                    if (preg_match($domains[$i], $referrerDomain)) {
-                        return true;
-                    }
-                } catch (Exception $e) {
-                    // do nothing
+        for ($i = 0; $i < count($this->domains); $i++) {
+            try {
+                if ($this->domains[$i] === $referrerDomain || preg_match($this->domains[$i], $referrerDomain)) {
+                    return true;
                 }
-            } elseif ($domains[$i] === $referrerDomain) {
-                return true;
+            } catch (Exception $e) {
+                // do nothing
             }
         }
 
@@ -78,9 +91,7 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     private function getReferrer()
     {
-        $referrer = (array_key_exists('HTTP_REFERER', $_SERVER) && $_SERVER['HTTP_REFERER'])
-            ? $_SERVER['HTTP_REFERER']
-            : '0';
+        $referrer = (!empty($this->referrerURL)) ? $this->referrerURL : '0';
 
         if ($this->isOwnDomain($referrer)) {
             $referrer = '1';
@@ -94,29 +105,30 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     private function getUserId()
     {
-        $everId = '';
-        $trackId = $this->config_['trackId'];
-
-        if (array_key_exists('wtstp_eid', $_COOKIE)) {
+        $eId = '';
+        if (array_key_exists(MappIntelligenceParameter::$SMART_PIXEL_COOKIE_NAME, $this->cookie)) {
             // SmartPixel cookie found
-            $everId = $_COOKIE['wtstp_eid'];
-        } elseif (array_key_exists('wteid_' . $trackId, $_COOKIE)) {
+            $eId = $this->cookie[MappIntelligenceParameter::$SMART_PIXEL_COOKIE_NAME];
+        } elseif (array_key_exists(
+            MappIntelligenceParameter::$SERVER_COOKIE_NAME_PREFIX . $this->trackId,
+            $this->cookie
+        )) {
             // Track-Server cookie found
-            $everId = $_COOKIE['wteid_' . $trackId];
-        } elseif (array_key_exists('wt3_eid', $_COOKIE)) {
+            $eId = $this->cookie[MappIntelligenceParameter::$SERVER_COOKIE_NAME_PREFIX . $this->trackId];
+        } elseif (array_key_exists(MappIntelligenceParameter::$PIXEL_COOKIE_NAME, $this->cookie)) {
             // Pixel v3 - v5 cookie found
-            $everIdValues = explode(';', $_COOKIE['wt3_eid']);
+            $everIdValues = explode(';', $this->cookie[MappIntelligenceParameter::$PIXEL_COOKIE_NAME]);
             for ($i = 0; $i < count($everIdValues); $i++) {
-                if (strrpos($everIdValues[$i], $trackId . '|') !== false) {
-                    $tmpEverId = str_replace($trackId . '|', '', $everIdValues[$i]);
-                    $everId = explode('#', $tmpEverId);
-                    $everId = $everId[0];
+                if (strrpos($everIdValues[$i], $this->trackId . '|') !== false) {
+                    $tmpEverId = str_replace($this->trackId . '|', '', $everIdValues[$i]);
+                    $eId = explode('#', $tmpEverId);
+                    $eId = $eId[0];
                     break;
                 }
             }
         }
 
-        return $everId;
+        return $eId;
     }
 
     /**
@@ -131,14 +143,36 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      * @param string $name
      * @param string $value
      * @param string $domain
+     *
+     * @return MappIntelligenceCookie
      */
     private function setUserIdCookie($name, $value = '', $domain = '')
     {
-        if (!$value) {
-            $value = $this->everId_;
+        if (empty($value)) {
+            $value = $this->everId;
         }
 
-        setcookie($name, $value, $this->getTimestamp() + 60*60*24*30*6, '/', $domain, true, true);
+        $everIdCookie = new MappIntelligenceServerCookie($name, $value);
+        if (!empty($domain)) {
+            $everIdCookie->setDomain($domain);
+        }
+
+        $everIdCookie->setMaxAge($this->getTimestamp() + 60*60*24*30*6);
+        $everIdCookie->setPath('/');
+        $everIdCookie->setSecure(true);
+        $everIdCookie->setHttpOnly(true);
+
+        setcookie(
+            $everIdCookie->getName(),
+            $everIdCookie->getValue(),
+            $everIdCookie->getMaxAge(),
+            $everIdCookie->getPath(),
+            $everIdCookie->getDomain(),
+            $everIdCookie->isSecure(),
+            $everIdCookie->isHttpOnly()
+        );
+
+        return $everIdCookie;
     }
 
     /**
@@ -153,7 +187,70 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
          * .webtrekk-asia.net     (Singapur)
          * .wt-sa.net             (Brasilien)
          */
-        return !preg_match('/\.(wt-.*|webtrekk|webtrekk-.*)\.net$/', $this->config_['trackDomain']);
+        return !preg_match('/\.(wt-.*|webtrekk|webtrekk-.*)\.net$/', $this->trackDomain);
+    }
+
+    /**
+     * @param $url
+     * @return string
+     */
+    private function unParseURI($url)
+    {
+        $host = isset($url['host']) ? $url['host'] : '';
+        $port = isset($url['port']) ? ':' . $url['port'] : '';
+        $user = isset($url['user']) ? $url['user'] : '';
+        $pass = isset($url['pass']) ? ':' . $url['pass']  : '';
+        $pass = ($user || $pass) ? "$pass@" : '';
+        $path = isset($url['path']) ? $url['path'] : '';
+        $query = isset($url['query']) ? '?' . $url['query'] : '';
+
+        return "$user$pass$host$port$path$query";
+    }
+
+    /**
+     * @param string $pixelVersion
+     * @param string $context
+     *
+     * @return MappIntelligenceCookie|null
+     */
+    private function userIdCookie($pixelVersion = '', $context = '')
+    {
+        $c = null;
+        if (empty($this->everId)) {
+            $this->everId = $this->generateUserId();
+
+            if ($context === MappIntelligence::SERVER_SIDE_COOKIE) {
+                if ($this->isOwnTrackDomain()) {
+                    $cookieDomain = explode('.', $this->trackDomain, 2);
+                    $cookieDomain = $cookieDomain[1];
+
+                    // if it is an own tracking domain use this without sub domain
+                    $c = $this->setUserIdCookie(
+                        MappIntelligenceParameter::$SERVER_COOKIE_NAME_PREFIX . $this->trackId,
+                        '',
+                        $cookieDomain
+                    );
+                }
+            } else {
+                switch ($pixelVersion) {
+                    case MappIntelligence::V4:
+                    case MappIntelligence::V5:
+                        $cookieValue = array_key_exists(MappIntelligenceParameter::$PIXEL_COOKIE_NAME, $this->cookie)
+                            ? $this->cookie[MappIntelligenceParameter::$PIXEL_COOKIE_NAME]
+                            : '';
+                        $cookieValue .= ';' . $this->trackId . '|' . $this->everId;
+                        $c = $this->setUserIdCookie(MappIntelligenceParameter::$PIXEL_COOKIE_NAME, $cookieValue);
+                        break;
+                    case MappIntelligence::SMART:
+                        $c = $this->setUserIdCookie(MappIntelligenceParameter::$SMART_PIXEL_COOKIE_NAME);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return $c;
     }
 
     /**
@@ -161,15 +258,15 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     final protected function getUserAgent()
     {
-        return array_key_exists('HTTP_USER_AGENT', $_SERVER) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        return $this->userAgent;
     }
 
     /**
      * @return string
      */
-    final protected function getUserIP()
+    final protected function getRemoteAddress()
     {
-        return array_key_exists('REMOTE_ADDR', $_SERVER) ? $_SERVER['REMOTE_ADDR'] : '';
+        return $this->remoteAddress;
     }
 
     /**
@@ -177,10 +274,11 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     final protected function getRequestURI()
     {
-        $host = array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : '';
-        $request = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '';
+        if (empty($this->requestURL)) {
+            return '';
+        }
 
-        return $host . $request;
+        return $this->unParseURI($this->requestURL);
     }
 
     /**
@@ -201,9 +299,9 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
         $plainUrl = $plainUrl[0];
 
         $parameterList = array();
-        if (is_array($this->config_['useParamsForDefaultPageName'])) {
-            for ($i = 0; $i < count($this->config_['useParamsForDefaultPageName']); $i++) {
-                $parameterKey = $this->config_['useParamsForDefaultPageName'][$i];
+        if (is_array($this->useParamsForDefaultPageName)) {
+            for ($i = 0; $i < count($this->useParamsForDefaultPageName); $i++) {
+                $parameterKey = $this->useParamsForDefaultPageName[$i];
                 $parameterValue = array_key_exists($parameterKey, $_GET) ? $_GET[$parameterKey] : false;
                 if ($parameterValue) {
                     $parameterList[] = $parameterKey . '=' . $parameterValue;
@@ -211,7 +309,7 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
             }
         }
 
-        if (count($parameterList) > 0) {
+        if (!empty($parameterList)) {
             $plainUrl .= '?' . implode('&', $parameterList);
         }
 
@@ -227,7 +325,7 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     final protected function getEverId()
     {
-        return $this->everId_;
+        return $this->everId;
     }
 
     /**
@@ -236,30 +334,17 @@ class MappIntelligenceEnrichment extends MappIntelligenceConfig
      */
     final public function setUserId($pixelVersion = '', $context = '')
     {
-        if (!$this->everId_) {
-            $this->everId_ = $this->generateUserId();
+        $this->userIdCookie($pixelVersion, $context);
+    }
 
-            if ($context === MappIntelligence::SERVER_SIDE_COOKIE) {
-                if ($this->isOwnTrackDomain()) {
-                    $cookieDomain = explode('.', $this->config_['trackDomain'], 2);
-                    $cookieDomain = $cookieDomain[1];
-
-                    // if it is an own tracking domain use this without sub domain
-                    $this->setUserIdCookie('wteid_' . $this->config_['trackId'], '', $cookieDomain);
-                }
-            } else {
-                switch ($pixelVersion) {
-                    case MappIntelligence::V4:
-                    case MappIntelligence::V5:
-                        $cookieValue = array_key_exists('wt3_eid', $_COOKIE) ? $_COOKIE['wt3_eid'] : '';
-                        $cookieValue .= ';' . $this->config_['trackId'] . '|' . $this->everId_;
-                        $this->setUserIdCookie('wt3_eid', $cookieValue);
-                        break;
-                    case MappIntelligence::SMART:
-                        $this->setUserIdCookie('wtstp_eid');
-                        break;
-                }
-            }
-        }
+    /**
+     * @param string $pixelVersion
+     * @param string $context
+     *
+     * @return MappIntelligenceCookie
+     */
+    final public function getUserIdCookie($pixelVersion = '', $context = '')
+    {
+        return $this->userIdCookie($pixelVersion, $context);
     }
 }

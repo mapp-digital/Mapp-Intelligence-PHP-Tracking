@@ -1,13 +1,18 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects
 
-require_once __DIR__ . '/lib/MappIntelligenceCronjob.php';
+require_once __DIR__ . '/lib/Cronjob/MappIntelligenceCLICronjob.php';
 
 $status = 1;
 try {
-    $cronjob = new MappIntelligenceCronjob(getopt(
-        'i:d:f:c:',
-        array('trackId:', 'trackDomain:', 'filename:', 'config:', 'debug')
+    $cronjob = new MappIntelligenceCLICronjob(getopt(
+        'i:d:t:f:c:p:',
+        array(
+            'trackId:', 'trackDomain:', 'consumerType:',
+            'filename:', 'filePath:', 'filePrefix:',
+            'config:',
+            'debug', 'version', 'help'
+        )
     ));
 
     $status = $cronjob->run();

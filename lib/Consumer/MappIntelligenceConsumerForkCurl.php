@@ -1,35 +1,37 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceAbstractConsumer.php';
+require_once __DIR__ . '/MappIntelligenceConsumerType.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
 
 /**
  * Class MappIntelligenceConsumerForkCurl
  */
 class MappIntelligenceConsumerForkCurl extends MappIntelligenceAbstractConsumer
 {
-    protected $type_ = 'fork-curl';
+    protected $type = MappIntelligenceConsumerType::FORK_CURL;
 
     /**
      * MappIntelligenceConsumerForkCurl constructor.
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct($config = array())
     {
         parent::__construct($config);
 
+        // @codeCoverageIgnoreStart
         if (!function_exists('exec')) {
-            // @codeCoverageIgnoreStart
-            $this->log("The 'exec' function must be exist to use the consumer $this->type_");
-            // @codeCoverageIgnoreEnd
+            $this->logger->log(MappIntelligenceMessages::$EXEC_MUST_BE_EXIST, $this->type);
         }
+        // @codeCoverageIgnoreEnd
 
         $disableFunctions = explode(', ', ini_get('disable_functions'));
         $execEnabled = !in_array('exec', $disableFunctions);
+        // @codeCoverageIgnoreStart
         if (!$execEnabled) {
-            // @codeCoverageIgnoreStart
-            $this->log("The 'exec' function must be enabled to use the consumer $this->type_");
-            // @codeCoverageIgnoreEnd
+            $this->logger->log(MappIntelligenceMessages::$EXEC_MUST_BE_ENABLED, $this->type);
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -53,25 +55,23 @@ class MappIntelligenceConsumerForkCurl extends MappIntelligenceAbstractConsumer
             return false;
         }
 
-        // $payload = escapeshellarg($payload);
-
         $url = $this->getUrl();
         $currentBatchSize = count($batchContent);
-        $this->log("Send batch data via forked cURL call to $url ($currentBatchSize req.)");
+        $this->logger->log(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
 
         $command = 'curl -X POST -H "Content-Type: text/plain"';
         $command .= ' -d "' . $payload . '"';
         $command .= ' -s -o /dev/null -w "%{http_code}"';
         $command .= ' "' . $url . '"';
 
-        $this->log("Execute command: $command");
+        $this->logger->log(MappIntelligenceMessages::$EXECUTE_COMMAND, $command);
         $this->execute($command, $output, $return_var);
 
         $httpStatus = intval((count($output)) > 0 ? $output[0] : 0);
-        $this->log("Batch request responding the status code $httpStatus");
+        $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
 
         if ($httpStatus !== 200) {
-            $this->log("[$httpStatus]: $return_var");
+            $this->logger->log(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $httpStatus, $return_var);
         }
 
         return $httpStatus === 200;

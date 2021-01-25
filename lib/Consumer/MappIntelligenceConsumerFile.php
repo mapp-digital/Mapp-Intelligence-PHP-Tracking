@@ -1,27 +1,46 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceAbstractConsumer.php';
+require_once __DIR__ . '/MappIntelligenceConsumerType.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
 
 /**
  * Class MappIntelligenceConsumerFile
  */
 class MappIntelligenceConsumerFile extends MappIntelligenceAbstractConsumer
 {
-    protected $type_ = 'file';
-    private $handle_;
+    /**
+     * @var string
+     */
+    protected $type = MappIntelligenceConsumerType::FILE;
+    /**
+     * @var resource
+     */
+    private $handle;
+    /**
+     * @var string
+     */
+    private $filename;
+    /**
+     * @var string
+     */
+    private $fileMode;
 
     /**
      * MappIntelligenceConsumerFile constructor.
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct($config = array())
     {
         parent::__construct($config);
 
+        $this->filename = $config['filename'];
+        $this->fileMode = $config['fileMode'];
+
         try {
-            $this->handle_ = fopen($this->config_['filename'], $this->config_['fileMode']);
+            $this->handle = fopen($this->filename, $this->fileMode);
         } catch (Exception $e) {
-            $this->log($e->getMessage());
+            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
     }
 
@@ -30,8 +49,8 @@ class MappIntelligenceConsumerFile extends MappIntelligenceAbstractConsumer
      */
     public function __destruct()
     {
-        if ($this->handle_) {
-            fclose($this->handle_);
+        if ($this->handle) {
+            fclose($this->handle);
         }
     }
 
@@ -41,21 +60,21 @@ class MappIntelligenceConsumerFile extends MappIntelligenceAbstractConsumer
      */
     public function sendBatch(array $batchContent)
     {
-        if (!$this->handle_) {
+        if (empty($this->handle)) {
             return false;
         }
 
         $payload = $this->verifyPayload($batchContent);
-        if (!$payload) {
+        if (empty($payload)) {
             return false;
         }
 
         $currentBatchSize = count($batchContent);
-        $this->log("Write batch data in " . $this->config_['filename'] . " ($currentBatchSize req.)");
+        $this->logger->log(MappIntelligenceMessages::$WRITE_BATCH_DATA, $this->filename, $currentBatchSize);
 
         $payload .= "\n";
 
-        fwrite($this->handle_, $payload);
+        fwrite($this->handle, $payload);
 
         return true;
     }

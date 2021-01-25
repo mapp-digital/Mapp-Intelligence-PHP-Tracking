@@ -1,9 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../MappIntelligenceExtendsTestCase.php';
+
 /**
  * Class MappIntelligenceSessionTest
  */
-class MappIntelligenceSessionTest extends PHPUnit\Framework\TestCase
+class MappIntelligenceSessionTest extends MappIntelligenceExtendsTestCase
 {
     public function testGetDefault()
     {
@@ -11,8 +13,6 @@ class MappIntelligenceSessionTest extends PHPUnit\Framework\TestCase
 
         $data = $session->getData();
         $this->assertEquals('', $data['loginStatus']);
-        $this->assertEquals(MappIntelligenceVersion::get(), $data['pixelVersion']);
-        $this->assertEquals('PHP', $data['trackingPlatform']);
         $this->assertEquals(0, count($data['parameter']));
     }
 
@@ -46,8 +46,6 @@ class MappIntelligenceSessionTest extends PHPUnit\Framework\TestCase
 
         $data = $session->getQueryParameter();
         $this->assertEquals('logged in', $data['cs800']);
-        $this->assertEquals(MappIntelligenceVersion::get(), $data['cs801']);
-        $this->assertEquals('PHP', $data['cs802']);
         $this->assertEquals('param2', $data['cs2']);
         $this->assertEquals('param15', $data['cs15']);
     }
@@ -57,8 +55,6 @@ class MappIntelligenceSessionTest extends PHPUnit\Framework\TestCase
         $session = new MappIntelligenceSession();
 
         $data = $session->getQueryParameter();
-        $this->assertEquals(2, count($data));
-        $this->assertEquals(MappIntelligenceVersion::get(), $data['cs801']);
-        $this->assertEquals('PHP', $data['cs802']);
+        $this->assertEquals(0, count($data));
     }
 }

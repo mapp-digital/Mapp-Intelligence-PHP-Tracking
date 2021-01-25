@@ -1,11 +1,13 @@
 # Composer
-composer.lock
+*.lock
 vendor
+vendor*
 composer.phar
 
 # Coverage
 **/reports/*
 **/coverage/*
+*.cache
 
 # JetBrains
 .idea

@@ -1,5 +1,9 @@
 <?php
 
+require_once __DIR__ . '/MappIntelligenceParameter.php';
+require_once __DIR__ . '/MappIntelligenceVersion.php';
+require_once __DIR__ . '/MappIntelligenceMessages.php';
+
 require_once __DIR__ . '/Config/MappIntelligenceConfig.php';
 require_once __DIR__ . '/Queue/MappIntelligenceQueue.php';
 require_once __DIR__ . '/Data/MappIntelligenceBasic.php';
@@ -10,51 +14,74 @@ require_once __DIR__ . '/Data/MappIntelligenceOrder.php';
 require_once __DIR__ . '/Data/MappIntelligencePage.php';
 require_once __DIR__ . '/Data/MappIntelligenceProduct.php';
 require_once __DIR__ . '/Data/MappIntelligenceSession.php';
+require_once __DIR__ . '/Data/MappIntelligenceProductCollection.php';
 
 /**
  * Class Tracking
  * @package MappIntelligence
  */
-class MappIntelligence extends MappIntelligenceConfig
+class MappIntelligence
 {
     const V4 = 'v4';
     const V5 = 'v5';
     const SMART = 'smart';
     const CLIENT_SIDE_COOKIE = '1';
     const SERVER_SIDE_COOKIE = '3';
+    const TRACKING_PLATFORM = 'PHP';
 
     /**
      * @var MappIntelligence
      */
-    private static $instance_;
-
+    private static $instance;
     /**
      * @var MappIntelligenceQueue
      */
-    private $queue_;
+    private $queue;
+    /**
+     * @var MappIntelligenceLogger
+     */
+    private $logger;
+    /**
+     * @var string
+     */
+    private $trackId;
+    /**
+     * @var string
+     */
+    private $trackDomain;
+    /**
+     * @var bool
+     */
+    private $deactivate;
 
     /**
      * Tracking constructor.
-     * @param array $config
+     * @param mixed $config
      */
-    protected function __construct($config = array())
+    private function __construct($config = array())
     {
-        parent::__construct($config);
+        $mappIntelligenceConfig = new MappIntelligenceConfig($config);
+        $cfg = $mappIntelligenceConfig->build();
 
-        $this->queue_ = new MappIntelligenceQueue($this->config_);
+        $this->trackId = $cfg['trackId'];
+        $this->trackDomain = $cfg['trackDomain'];
+        $this->logger = $cfg['logger'];
+        $this->deactivate = $cfg['deactivate'];
+
+        $this->queue = new MappIntelligenceQueue($cfg);
     }
 
     /**
-     * @param array $config
+     * @param mixed $config
      * @return MappIntelligence
      */
     public static function getInstance($config = array())
     {
-        if (!isset(self::$instance_)) {
-            self::$instance_ = new MappIntelligence($config);
+        if (!isset(self::$instance)) {
+            self::$instance = new MappIntelligence($config);
         }
 
-        return self::$instance_;
+        return self::$instance;
     }
 
     /**
@@ -121,6 +148,125 @@ class MappIntelligence extends MappIntelligenceConfig
     }
 
     /**
+     * @param mixed $data Object to check
+     *
+     * @return boolean
+     */
+    private function isProductCollection($data)
+    {
+        return $data instanceof MappIntelligenceProductCollection;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isTrackable()
+    {
+        if ($this->deactivate) {
+            $this->logger->log(MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED);
+            return false;
+        }
+
+        if (!$this->trackId || !$this->trackDomain) {
+            $this->logger->log(MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_TRACKING);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    private function isDataValid($data)
+    {
+        return (is_array($data) || method_exists($data, 'build'));
+    }
+
+    /**
+     * @param array $requestData Tracking request data
+     *
+     * @return bool
+     */
+    private function addToRequestQueue($requestData)
+    {
+        $requestData[MappIntelligenceParameter::$VERSION] = MappIntelligenceVersion::get();
+        $requestData[MappIntelligenceParameter::$TRACKING_PLATFORM] = self::TRACKING_PLATFORM;
+
+        $this->queue->add($requestData);
+        return true;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return array
+     */
+    private function convertDataToArray($data)
+    {
+        $tmpData = array();
+
+        try {
+            if (is_array($data)) {
+                $tmpData = $data;
+            } elseif (method_exists($data, 'build')) {
+                $tmpData = $data->build();
+            }
+        } catch (Exception $e) {
+            // do nothing
+        }
+
+        return $tmpData;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return array
+     */
+    private function getRequestData($data)
+    {
+        $data = $this->convertDataToArray($data);
+        $requestData = array();
+
+        foreach ($data as $key => $value) {
+            if ($this->isDataObject($value) || $this->isProductCollection($value) || is_array($value)) {
+                if ((is_array($value) && !empty($value)) || $this->isProductCollection($value)) {
+                    $value = $this->convertDataToArray($value);
+                    $products = array();
+                    for ($i = 0; $i < count($value); $i++) {
+                        $products[] = $value[$i]->getQueryParameter();
+                    }
+
+                    $requestData = array_merge($requestData, $this->mergeProducts($products));
+                } else {
+                    $requestData = array_merge($requestData, $value->getQueryParameter());
+                }
+            } else {
+                $requestData[$key] = $value;
+            }
+        }
+
+        return $requestData;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    public function track($data = array())
+    {
+        if ($this->isTrackable() && $data != null && $this->isDataValid($data)) {
+            return $this->addToRequestQueue($this->getRequestData($data));
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $pixelVersion
      * @param string $context
      *
@@ -128,13 +274,29 @@ class MappIntelligence extends MappIntelligenceConfig
      */
     public function setUserId($pixelVersion, $context)
     {
-        if (!$this->config_['trackId'] || !$this->config_['trackDomain']) {
-            $this->log('The Mapp Intelligence "trackDomain" and "trackId" are required to set user cookie');
+        if (!$this->trackId || !$this->trackDomain) {
+            $this->logger->log(MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_COOKIE);
             return false;
         }
 
-        $this->queue_->setUserId($pixelVersion, $context);
+        $this->queue->setUserId($pixelVersion, $context);
         return true;
+    }
+
+    /**
+     * @param string $pixelVersion
+     * @param string $context
+     *
+     * @return MappIntelligenceCookie|null
+     */
+    public function getUserIdCookie($pixelVersion, $context)
+    {
+        if (!$this->trackId || !$this->trackDomain) {
+            $this->logger->log(MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_COOKIE);
+            return null;
+        }
+
+        return $this->queue->getUserIdCookie($pixelVersion, $context);
     }
 
     /**
@@ -142,52 +304,6 @@ class MappIntelligence extends MappIntelligenceConfig
      */
     public function flush()
     {
-        return $this->queue_->flush();
-    }
-
-    /**
-     * @param array $data
-     *
-     * @return bool
-     */
-    public function track($data = array())
-    {
-        if ($this->config_['deactivate']) {
-            $this->log('Mapp Intelligence tracking is deactivated');
-            return false;
-        }
-
-        if (!$this->config_['trackId'] || !$this->config_['trackDomain']) {
-            $this->log('The Mapp Intelligence "trackDomain" and "trackId" are required to track data');
-            return false;
-        }
-
-        if (is_array($data)) {
-            $requestData = array();
-            foreach ($data as $key => $value) {
-                if ($this->isDataObject($value) || is_array($value)) {
-                    if (is_array($value) && count($value) > 0) {
-                        $products = array();
-                        for ($i = 0; $i < count($value); $i++) {
-                            $products[] = $value[$i]->getQueryParameter();
-                        }
-
-                        $requestData = array_merge($requestData, $this->mergeProducts($products));
-                    } else {
-                        $requestData = array_merge($requestData, $value->getQueryParameter());
-                    }
-                } else {
-                    $requestData[$key] = $value;
-                }
-            }
-
-            if (count($requestData) > 0) {
-                $this->queue_->add($requestData);
-
-                return true;
-            }
-        }
-
-        return false;
+        return $this->queue->flush();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligencePage
@@ -39,22 +40,22 @@ class MappIntelligencePage extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'name' => 'pn',
-            'search' => 'is',
-            'numberSearchResults' => 'cp771',
-            'errorMessages' => 'cp772',
-            'paywall' => 'cp773',
-            'articleTitle' => 'cp774',
-            'contentTags' => 'cp775',
-            'title' => 'cp776',
-            'type' => 'cp777',
-            'length' => 'cp778',
-            'daysSincePublication' => 'cp779',
-            'testVariant' => 'cp781',
-            'testExperiment' => 'cp782',
-            'parameter' => 'cp',
-            'category' => 'cg',
-            'goal' => 'cb'
+            'name' => MappIntelligenceParameter::$PAGE_NAME,
+            'search' => MappIntelligenceParameter::$SEARCH,
+            'numberSearchResults' => MappIntelligenceParameter::$NUMBER_SEARCH_RESULTS,
+            'errorMessages' => MappIntelligenceParameter::$ERROR_MESSAGES,
+            'paywall' => MappIntelligenceParameter::$PAYWALL,
+            'articleTitle' => MappIntelligenceParameter::$ARTICLE_TITLE,
+            'contentTags' => MappIntelligenceParameter::$CONTENT_TAGS,
+            'title' => MappIntelligenceParameter::$PAGE_TITLE,
+            'type' => MappIntelligenceParameter::$PAGE_TYPE,
+            'length' => MappIntelligenceParameter::$PAGE_LENGTH,
+            'daysSincePublication' => MappIntelligenceParameter::$DAYS_SINCE_PUBLICATION,
+            'testVariant' => MappIntelligenceParameter::$TEST_VARIANT,
+            'testExperiment' => MappIntelligenceParameter::$TEST_EXPERIMENT,
+            'parameter' => MappIntelligenceParameter::$CUSTOM_PAGE_PARAMETER,
+            'category' => MappIntelligenceParameter::$CUSTOM_PAGE_CATEGORY,
+            'goal' => MappIntelligenceParameter::$CUSTOM_PRODUCT_PARAMETER
         );
     }
 

@@ -12,7 +12,7 @@ abstract class MappIntelligenceBasic
      * @param string $key
      * @return array
      */
-    final private function getParameterList($params, $key)
+    private function getParameterList($params, $key)
     {
         $data = array();
 

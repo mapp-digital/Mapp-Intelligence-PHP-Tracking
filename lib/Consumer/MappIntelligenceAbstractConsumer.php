@@ -1,26 +1,46 @@
 <?php
 
-require_once __DIR__ . '/../Config/MappIntelligenceConfig.php';
+require_once __DIR__ . '/MappIntelligenceConsumerType.php';
+require_once __DIR__ . '/../MappIntelligenceConsumer.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
 
 /**
  * Class MappIntelligenceAbstractConsumer
  */
-abstract class MappIntelligenceAbstractConsumer extends MappIntelligenceConfig
+abstract class MappIntelligenceAbstractConsumer implements MappIntelligenceConsumer
 {
-    private $maxPayloadSize_;
-    private $maxBatchSize_;
-    protected $type_ = '';
+    /**
+     * Constant for max payload size.
+     */
+    const MAX_PAYLOAD_SIZE = 24 * 1024 * 1024;
+    /**
+     * Constant for max batch size.
+     */
+    const MAX_BATCH_SIZE = 10 * 1000;
+
+    /**
+     * @var MappIntelligenceLogger
+     */
+    protected $logger;
+    /**
+     * @var string
+     */
+    protected $type = '';
+
+    private $trackId;
+    private $trackDomain;
+    private $forceSSL;
 
     /**
      * MappIntelligenceAbstractConsumer constructor.
      * @param array $config
      */
-    protected function __construct(array $config = array())
+    protected function __construct($config = array())
     {
-        parent::__construct($config);
-
-        $this->maxPayloadSize_ = 24 * 1024 * 1024; // max. 24MB
-        $this->maxBatchSize_ = 10 * 1000; // max. 10k req. per batch
+        $this->trackId = $config['trackId'];
+        $this->trackDomain = $config['trackDomain'];
+        $this->forceSSL = $config['forceSSL'];
+        $this->logger = $config['logger'];
     }
 
     /**
@@ -28,11 +48,9 @@ abstract class MappIntelligenceAbstractConsumer extends MappIntelligenceConfig
      */
     final protected function getUrl()
     {
-        $url = (($this->config_['forceSSL']) ? 'https://' : 'http://');
-        $url .= $this->config_['trackDomain'];
-        $url .= '/' . $this->config_['trackId'] . '/batch';
-
-        return $url;
+        return (($this->forceSSL) ? 'https://' : 'http://')
+            . $this->trackDomain . '/'
+            . $this->trackId . '/batch';
     }
 
     /**
@@ -42,29 +60,23 @@ abstract class MappIntelligenceAbstractConsumer extends MappIntelligenceConfig
     final protected function verifyPayload(array $batchContent)
     {
         $currentBatchSize = count($batchContent);
-        if ($currentBatchSize > $this->maxBatchSize_) {
-            $this->log("Batch size is larger than $this->maxBatchSize_ req. ($currentBatchSize req.)");
+        if ($currentBatchSize > self::MAX_BATCH_SIZE) {
+            $this->logger->log(MappIntelligenceMessages::$TO_LARGE_BATCH_SIZE, self::MAX_BATCH_SIZE, $currentBatchSize);
             return false;
         }
 
         $glue = "\n";
-        if ($this->type_ === 'fork-curl') {
+        if ($this->type === MappIntelligenceConsumerType::FORK_CURL) {
             $glue = '\n';
         }
 
         $payload = implode($glue, $batchContent);
-        if (strlen($payload) >= $this->maxPayloadSize_) {
+        if (strlen($payload) >= self::MAX_PAYLOAD_SIZE) {
             $currentPayloadSize = round(strlen($payload) / 1024 / 1024, 2);
-            $this->log('Payload size is larger than 24MB (' . $currentPayloadSize . 'MB)');
+            $this->logger->log(MappIntelligenceMessages::$TO_LARGE_PAYLOAD_SIZE, $currentPayloadSize);
             return false;
         }
 
         return $payload;
     }
-
-    /**
-     * @param array $batchContent
-     * @return bool
-     */
-    abstract public function sendBatch(array $batchContent);
 }

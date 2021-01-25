@@ -1,9 +1,13 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceEnrichment.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerCurl.php';
 require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerFile.php';
+require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerFileRotation.php';
 require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerForkCurl.php';
+require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerType.php';
 
 /**
  * Class MappIntelligenceQueue
@@ -11,21 +15,29 @@ require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerForkCurl.php';
 class MappIntelligenceQueue extends MappIntelligenceEnrichment
 {
     /**
-     * @var MappIntelligenceConsumerCurl|MappIntelligenceConsumerFile|MappIntelligenceConsumerForkCurl
+     * @var MappIntelligenceConsumer
      */
-    private $consumer_;
+    private $consumer;
+    /**
+     * @var MappIntelligenceLogger
+     */
+    private $logger;
+    /**
+     * @var int
+     */
+    private $maxAttempt;
+    /**
+     * @var int
+     */
+    private $attemptTimeout;
+    /**
+     * @var int
+     */
+    private $maxBatchSize;
     /**
      * @var array
      */
-    private $queue_ = array();
-    /**
-     * @var array
-     */
-    private $consumerTypes_ = array(
-        'curl' => 'MappIntelligenceConsumerCurl',
-        'fork-curl' => 'MappIntelligenceConsumerForkCurl',
-        'file' => 'MappIntelligenceConsumerFile'
-    );
+    private $queue = array();
 
     /**
      * MappIntelligenceQueue constructor.
@@ -35,8 +47,24 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
     {
         parent::__construct($config);
 
-        $Consumer = $this->consumerTypes_[$this->config_['consumer']];
-        $this->consumer_ = new $Consumer($this->config_);
+        $consumerType = $config['consumerType'];
+        $this->maxAttempt = $config['maxAttempt'];
+        $this->attemptTimeout = $config['attemptTimeout'];
+        $this->maxBatchSize = $config['maxBatchSize'];
+        $this->logger = $config['logger'];
+        $this->consumer = $config['consumer'];
+
+        if (empty($this->consumer)) {
+            if ($consumerType === MappIntelligenceConsumerType::CURL) {
+                $this->consumer = new MappIntelligenceConsumerCurl($config);
+            } elseif ($consumerType === MappIntelligenceConsumerType::FORK_CURL) {
+                $this->consumer = new MappIntelligenceConsumerForkCurl($config);
+            } elseif ($consumerType === MappIntelligenceConsumerType::FILE) {
+                $this->consumer = new MappIntelligenceConsumerFile($config);
+            } elseif ($consumerType === MappIntelligenceConsumerType::FILE_ROTATION) {
+                $this->consumer = new MappIntelligenceConsumerFileRotation($config);
+            }
+        }
     }
 
     /**
@@ -53,7 +81,7 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     private function sendBatch(array $batchContent)
     {
-        return $this->consumer_->sendBatch($batchContent);
+        return $this->consumer->sendBatch($batchContent);
     }
 
     /**
@@ -61,30 +89,101 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     private function flushQueue()
     {
-        $currentQueueSize = count($this->queue_);
+        $currentQueueSize = count($this->queue);
         $wasRequestSuccessful = true;
-        $this->log("Sent batch requests, current queue size is $currentQueueSize req.");
+        $this->logger->log(MappIntelligenceMessages::$SENT_BATCH_REQUESTS, $currentQueueSize);
 
         while ($currentQueueSize > 0 && $wasRequestSuccessful) {
-            $batchSize = min($this->config_['maxBatchSize'], $currentQueueSize);
-            $batchContent = array_splice($this->queue_, 0, $batchSize);
+            $batchSize = min($this->maxBatchSize, $currentQueueSize);
+            $batchContent = array_splice($this->queue, 0, $batchSize);
             $wasRequestSuccessful = $this->sendBatch($batchContent);
 
             if (!$wasRequestSuccessful) {
-                $this->log('Batch request failed!');
+                $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_FAILED);
 
-                $this->queue_ = array_merge($batchContent, $this->queue_);
+                $this->queue = array_merge($batchContent, $this->queue);
             }
 
-            $currentQueueSize = count($this->queue_);
-            $this->log("Batch of $batchSize req. sent, current queue size is $currentQueueSize req.");
+            $currentQueueSize = count($this->queue);
+            $this->logger->log(MappIntelligenceMessages::$CURRENT_QUEUE_STATUS, $batchSize, $currentQueueSize);
         }
 
         if ($currentQueueSize === 0) {
-            $this->log('MappIntelligenceQueue is empty');
+            $this->logger->log(MappIntelligenceMessages::$QUEUE_IS_EMPTY);
         }
 
         return $wasRequestSuccessful;
+    }
+
+    /**
+     * @param string $data
+     * @return string
+     */
+    private function addRequestAsString($data)
+    {
+        $params = array();
+
+        if (strpos($data, MappIntelligenceParameter::$USER_AGENT) === false) {
+            $userAgent = $this->getUserAgent();
+            if ($userAgent) {
+                $params[MappIntelligenceParameter::$USER_AGENT] = $userAgent;
+            }
+        }
+
+        if (strpos($data, MappIntelligenceParameter::$USER_IP) === false) {
+            $userIP = $this->getRemoteAddress();
+            if ($userIP) {
+                $params[MappIntelligenceParameter::$USER_IP] = $userIP;
+            }
+        }
+
+        $request = $data;
+        $request .= (!empty($params) ? '&' . http_build_query($params, null, '&', PHP_QUERY_RFC3986) : '');
+        $this->queue[] = $request;
+
+        return $request;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    private function addRequestAsArray($data)
+    {
+        $request = '';
+        $eid = $this->getEverId();
+        if ($eid) {
+            $eidArray = array(
+                MappIntelligenceParameter::$EVER_ID => $eid
+            );
+            $data = array_merge($eidArray, $data);
+        }
+
+        $userAgent = $this->getUserAgent();
+        if ($userAgent) {
+            $data[MappIntelligenceParameter::$USER_AGENT] = $userAgent;
+        }
+
+        $userIP = $this->getRemoteAddress();
+        if ($userIP) {
+            $data[MappIntelligenceParameter::$USER_IP] = $userIP;
+        }
+
+        $requestURI = $this->getRequestURI();
+        if ($requestURI) {
+            $data[MappIntelligenceParameter::$PAGE_URL] = 'https://' . $requestURI;
+        }
+
+        $pageName = array_key_exists(MappIntelligenceParameter::$PAGE_NAME, $data)
+            ? $data[MappIntelligenceParameter::$PAGE_NAME]
+            : $this->getDefaultPageName();
+        unset($data[MappIntelligenceParameter::$PAGE_NAME]);
+
+        $request .= 'wt?p=' . $this->getMandatoryQueryParameter($pageName)
+            . '&' . http_build_query($data, null, '&', PHP_QUERY_RFC3986);
+        $this->queue[] = $request;
+
+        return $request;
     }
 
     /**
@@ -92,7 +191,7 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     public function getQueue()
     {
-        return $this->queue_;
+        return $this->queue;
     }
 
     /**
@@ -100,63 +199,16 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     public function add($data = array())
     {
-        $request = '';
-
         if (is_string($data)) {
-            $params = array();
-
-            if (strpos($data, 'X-WT-UA') === false) {
-                $userAgent = $this->getUserAgent();
-                if ($userAgent) {
-                    $params['X-WT-UA'] = $userAgent;
-                }
-            }
-
-            if (strpos($data, 'X-WT-IP') === false) {
-                $userIP = $this->getUserIP();
-                if ($userIP) {
-                    $params['X-WT-IP'] = $userIP;
-                }
-            }
-
-            $request .= $data;
-            $request .= (count($params) > 0 ? '&' . http_build_query($params, null, '&', PHP_QUERY_RFC3986) : '');
-            $this->queue_[] = $request;
+            $request = $this->addRequestAsString($data);
         } else {
-            $eid = $this->getEverId();
-            if ($eid) {
-                $data = array_merge(array(
-                    'eid' => $eid
-                ), $data);
-            }
-
-            $userAgent = $this->getUserAgent();
-            if ($userAgent) {
-                $data['X-WT-UA'] = $userAgent;
-            }
-
-            $userIP = $this->getUserIP();
-            if ($userIP) {
-                $data['X-WT-IP'] = $userIP;
-            }
-
-            $requestURI = $this->getRequestURI();
-            if ($requestURI) {
-                $data['pu'] = 'https://' . $requestURI;
-            }
-
-            $pageName = array_key_exists('pn', $data) ? $data['pn'] : $this->getDefaultPageName();
-            unset($data['pn']);
-
-            $request .= 'wt?p=' . $this->getMandatoryQueryParameter($pageName)
-                . '&' . http_build_query($data, null, '&', PHP_QUERY_RFC3986);
-            $this->queue_[] = $request;
+            $request = $this->addRequestAsArray($data);
         }
 
-        $currentQueueSize = count($this->queue_);
-        $this->log("Add the following request to queue ($currentQueueSize req.): $request");
+        $currentQueueSize = count($this->queue);
+        $this->logger->log(MappIntelligenceMessages::$ADD_THE_FOLLOWING_REQUEST_TO_QUEUE, $currentQueueSize, $request);
 
-        if ($currentQueueSize >= $this->config_['maxBatchSize']) {
+        if ($currentQueueSize >= $this->maxBatchSize) {
             $this->flush();
         }
     }
@@ -168,12 +220,12 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
     {
         $currentAttempt = 0;
         $wasRequestSuccessful = false;
-        while (!$wasRequestSuccessful && $currentAttempt < $this->config_['maxAttempt']) {
+        while (!$wasRequestSuccessful && $currentAttempt < $this->maxAttempt) {
             $wasRequestSuccessful = $this->flushQueue();
             $currentAttempt++;
 
             if (!$wasRequestSuccessful) {
-                usleep($this->config_['attemptTimeout'] * 1000);
+                usleep($this->attemptTimeout * 1000);
             }
         }
 

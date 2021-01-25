@@ -1,27 +1,29 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceAbstractConsumer.php';
+require_once __DIR__ . '/MappIntelligenceConsumerType.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
 
 /**
  * Class MappIntelligenceConsumerCurl
  */
 class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
 {
-    protected $type_ = 'curl';
+    protected $type = MappIntelligenceConsumerType::CURL;
 
     /**
      * MappIntelligenceConsumerCurl constructor.
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct($config = array())
     {
         parent::__construct($config);
 
+        // @codeCoverageIgnoreStart
         if (!function_exists('curl_init')) {
-            // @codeCoverageIgnoreStart
-            $this->log("The cURL PHP extension is required to use the consumer $this->type_");
-            // @codeCoverageIgnoreEnd
+            $this->logger->log(MappIntelligenceMessages::$CURL_PHP_EXTENSION_IS_REQUIRED, $this->type);
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -37,7 +39,7 @@ class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
 
         $url = $this->getUrl();
         $currentBatchSize = count($batchContent);
-        $this->log("Send batch data via cURL call to $url ($currentBatchSize req.)");
+        $this->logger->log(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
 
         // ToDo: support "Content-Encoding: gzip"
 
@@ -57,12 +59,12 @@ class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
         curl_exec($s);
         $httpStatus = curl_getinfo($s, CURLINFO_HTTP_CODE);
 
-        $this->log("Batch request responding the status code $httpStatus");
+        $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
 
         if ($httpStatus !== 200) {
             $errno = curl_errno($s);
             $error = curl_error($s);
-            $this->log("[$errno]: $error");
+            $this->logger->log(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $errno, $error);
 
             curl_close($s);
             return false;

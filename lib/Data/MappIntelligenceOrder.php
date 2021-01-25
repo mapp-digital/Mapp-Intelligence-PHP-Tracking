@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligenceOrder
@@ -34,17 +35,17 @@ class MappIntelligenceOrder extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'value' => 'ov',
-            'id' => 'oi',
-            'currency' => 'cr',
-            'couponValue' => 'cb563',
-            'paymentMethod' => 'cb761',
-            'shippingService' => 'cb762',
-            'shippingSpeed' => 'cb763',
-            'shippingCosts' => 'cb764',
-            'grossMargin' => 'cb765',
-            'orderStatus' => 'cb766',
-            'parameter' => 'cb'
+            'value' => MappIntelligenceParameter::$ORDER_VALUE,
+            'id' => MappIntelligenceParameter::$ORDER_ID,
+            'currency' => MappIntelligenceParameter::$CURRENCY,
+            'couponValue' => MappIntelligenceParameter::$COUPON_VALUE,
+            'paymentMethod' => MappIntelligenceParameter::$PAYMENT_METHOD,
+            'shippingService' => MappIntelligenceParameter::$SHIPPING_SERVICE,
+            'shippingSpeed' => MappIntelligenceParameter::$SHIPPING_SPEED,
+            'shippingCosts' => MappIntelligenceParameter::$SHIPPING_COSTS,
+            'grossMargin' => MappIntelligenceParameter::$GROSS_MARGIN,
+            'orderStatus' => MappIntelligenceParameter::$ORDER_STATUS,
+            'parameter' => MappIntelligenceParameter::$CUSTOM_PRODUCT_PARAMETER
         );
     }
 

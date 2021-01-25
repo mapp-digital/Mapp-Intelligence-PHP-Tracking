@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligenceProduct
@@ -14,7 +15,7 @@ class MappIntelligenceProduct extends MappIntelligenceBasic
     protected $id = '';
     protected $cost = 0;
     protected $quantity = 0;
-    protected $status = 'view';
+    protected $status = self::VIEW;
     protected $variant = '';
     protected $soldOut = false;
     protected $parameter = array();
@@ -36,14 +37,14 @@ class MappIntelligenceProduct extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'id' => 'ba',
-            'cost' => 'co',
-            'quantity' => 'qn',
-            'status' => 'st',
-            'variant' => 'cb767',
-            'soldOut' => 'cb760',
-            'parameter' => 'cb',
-            'category' => 'ca'
+            'id' => MappIntelligenceParameter::$PRODUCT_ID,
+            'cost' => MappIntelligenceParameter::$PRODUCT_COST,
+            'quantity' => MappIntelligenceParameter::$PRODUCT_QUANTITY,
+            'status' => MappIntelligenceParameter::$PRODUCT_STATUS,
+            'variant' => MappIntelligenceParameter::$PRODUCT_VARIANT,
+            'soldOut' => MappIntelligenceParameter::$PRODUCT_SOLD_OUT,
+            'parameter' => MappIntelligenceParameter::$CUSTOM_PRODUCT_PARAMETER,
+            'category' => MappIntelligenceParameter::$CUSTOM_PRODUCT_CATEGORY
         );
     }
 

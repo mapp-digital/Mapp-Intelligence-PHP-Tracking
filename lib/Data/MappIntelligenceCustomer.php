@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligenceCustomer
@@ -39,22 +40,22 @@ class MappIntelligenceCustomer extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'id' => 'cd',
-            'email' => 'uc700',
-            'emailRID' => 'uc701',
-            'emailOptin' => 'uc702',
-            'firstName' => 'uc703',
-            'lastName' => 'uc704',
-            'telephone' => 'uc705',
-            'gender' => 'uc706',
-            'birthday' => 'uc707',
-            'country' => 'uc708',
-            'city' => 'uc709',
-            'postalCode' => 'uc710',
-            'street' => 'uc711',
-            'streetNumber' => 'uc712',
-            'validation' => 'uc713',
-            'category' => 'uc'
+            'id' => MappIntelligenceParameter::$CUSTOMER_ID,
+            'email' => MappIntelligenceParameter::$EMAIL,
+            'emailRID' => MappIntelligenceParameter::$EMAIL_RID,
+            'emailOptin' => MappIntelligenceParameter::$EMAIL_OPTIN,
+            'firstName' => MappIntelligenceParameter::$FIRST_NAME,
+            'lastName' => MappIntelligenceParameter::$LAST_NAME,
+            'telephone' => MappIntelligenceParameter::$TELEPHONE,
+            'gender' => MappIntelligenceParameter::$GENDER,
+            'birthday' => MappIntelligenceParameter::$BIRTHDAY,
+            'country' => MappIntelligenceParameter::$COUNTRY,
+            'city' => MappIntelligenceParameter::$CITY,
+            'postalCode' => MappIntelligenceParameter::$POSTAL_CODE,
+            'street' => MappIntelligenceParameter::$STREET,
+            'streetNumber' => MappIntelligenceParameter::$STREET_NUMBER,
+            'validation' => MappIntelligenceParameter::$CUSTOMER_VALIDATION,
+            'category' => MappIntelligenceParameter::$CUSTOM_URM_CATEGORY
         );
     }
 

@@ -1,9 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../MappIntelligenceExtendsTestCase.php';
+
 /**
  * Class MappIntelligenceCustomerTest
  */
-class MappIntelligenceCustomerTest extends PHPUnit\Framework\TestCase
+class MappIntelligenceCustomerTest extends MappIntelligenceExtendsTestCase
 {
     public function testNewCustomerWithoutId()
     {

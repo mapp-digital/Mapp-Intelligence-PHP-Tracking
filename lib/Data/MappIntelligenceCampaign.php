@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligenceCampaign
@@ -28,9 +29,9 @@ class MappIntelligenceCampaign extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'id' => 'mc',
-            'action' => 'mca',
-            'parameter' => 'cc'
+            'id' => MappIntelligenceParameter::$CAMPAIGN_ID,
+            'action' => MappIntelligenceParameter::$CAMPAIGN_ACTION,
+            'parameter' => MappIntelligenceParameter::$CUSTOM_CAMPAIGN_PARAMETER
         );
     }
 

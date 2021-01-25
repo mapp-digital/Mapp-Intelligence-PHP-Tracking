@@ -1,9 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../MappIntelligenceExtendsTestCase.php';
+
 /**
  * Class MappIntelligenceConsumerForkCurlTest
  */
-class MappIntelligenceConsumerForkCurlTest extends PHPUnit\Framework\TestCase
+class MappIntelligenceConsumerForkCurlTest extends MappIntelligenceExtendsTestCase
 {
     private $longText;
     private $contentMaxBatchSize_;
@@ -71,9 +73,10 @@ class MappIntelligenceConsumerForkCurlTest extends PHPUnit\Framework\TestCase
 
     public function testNewConsumerForkCurl()
     {
-        new MappIntelligenceConsumerForkCurl(array(
+        $c = new MappIntelligenceConfig(array(
             'debug' => true
         ));
+        new MappIntelligenceConsumerForkCurl($c->build());
 
         $fileContent = MappIntelligenceUnitUtil::getErrorLog();
         $this->assertEquals('', $fileContent[0]);
@@ -81,68 +84,72 @@ class MappIntelligenceConsumerForkCurlTest extends PHPUnit\Framework\TestCase
 
     public function testBatchRequestResponding200()
     {
-        $consumer = new MappIntelligenceConsumerForkCurl(array(
+        $c = new MappIntelligenceConfig(array(
             'trackId' => '123451234512345',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'debug' => true
         ));
+        $consumer = new MappIntelligenceConsumerForkCurl($c->build());
 
         $this->assertEquals(true, $consumer->sendBatch(array(
             'wt?p=300,0'
         )));
 
         $fileContent = MappIntelligenceUnitUtil::getErrorLog();
-        $this->assertContains(
-            'Send batch data via forked cURL call to https://analytics01.wt-eu02.net/123451234512345/batch (1 req.)',
+        $this->assertContainsExtended(
+            'Send batch data to https://analytics01.wt-eu02.net/123451234512345/batch (1 req.)',
             $fileContent[0]
         );
-        $this->assertContains('Execute command: curl -X POST -H', $fileContent[1]);
-        $this->assertContains('Batch request responding the status code 200', $fileContent[2]);
+        $this->assertContainsExtended('Execute command: curl -X POST -H', $fileContent[1]);
+        $this->assertContainsExtended('Batch request responding the status code 200', $fileContent[2]);
     }
 
     public function testBatchRequestResponding404()
     {
-        $consumer = new MappIntelligenceConsumerForkCurl(array(
+        $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'debug' => true
         ));
+        $consumer = new MappIntelligenceConsumerForkCurl($c->build());
 
         $this->assertEquals(false, $consumer->sendBatch(array(
             'wt?p=300,0'
         )));
 
         $fileContent = MappIntelligenceUnitUtil::getErrorLog();
-        $this->assertContains(
-            'Send batch data via forked cURL call to https://analytics01.wt-eu02.net/111111111111111/batch (1 req.)',
+        $this->assertContainsExtended(
+            'Send batch data to https://analytics01.wt-eu02.net/111111111111111/batch (1 req.)',
             $fileContent[0]
         );
-        $this->assertContains('Execute command: curl -X POST -H', $fileContent[1]);
-        $this->assertContains('Batch request responding the status code 404', $fileContent[2]);
-        $this->assertContains('[404]: ', $fileContent[3]);
+        $this->assertContainsExtended('Execute command: curl -X POST -H', $fileContent[1]);
+        $this->assertContainsExtended('Batch request responding the status code 404', $fileContent[2]);
+        $this->assertContainsExtended('[404]: ', $fileContent[3]);
     }
 
     public function testMaxBatchSize()
     {
-        $consumer = new MappIntelligenceConsumerForkCurl(array(
+        $c = new MappIntelligenceConfig(array(
             'debug' => true
         ));
+        $consumer = new MappIntelligenceConsumerForkCurl($c->build());
 
         $this->assertEquals(false, $consumer->sendBatch($this->contentMaxBatchSize_));
 
         $fileContent = MappIntelligenceUnitUtil::getErrorLog();
-        $this->assertContains('Batch size is larger than 10000 req. (11000 req.)', $fileContent[0]);
+        $this->assertContainsExtended('Batch size is larger than 10000 req. (11000 req.)', $fileContent[0]);
     }
 
     public function testMaxPayloadSize()
     {
-        $consumer = new MappIntelligenceConsumerForkCurl(array(
+        $c = new MappIntelligenceConfig(array(
             'debug' => true
         ));
+        $consumer = new MappIntelligenceConsumerForkCurl($c->build());
 
         $this->assertEquals(false, $consumer->sendBatch($this->maxPayloadSize_));
 
         $fileContent = MappIntelligenceUnitUtil::getErrorLog();
-        $this->assertContains('Payload size is larger than 24MB (34.71MB)', $fileContent[0]);
+        $this->assertContainsExtended('Payload size is larger than 24MB (34.71MB)', $fileContent[0]);
     }
 }

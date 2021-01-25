@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/MappIntelligenceBasic.php';
-require_once __DIR__ . '/../MappIntelligenceVersion.php';
+require_once __DIR__ . '/../MappIntelligenceParameter.php';
 
 /**
  * Class MappIntelligenceSession
@@ -9,8 +9,6 @@ require_once __DIR__ . '/../MappIntelligenceVersion.php';
 class MappIntelligenceSession extends MappIntelligenceBasic
 {
     protected $loginStatus = '';
-    protected $pixelVersion = '';
-    protected $trackingPlatform = 'PHP';
     protected $parameter = array();
 
     /**
@@ -18,7 +16,7 @@ class MappIntelligenceSession extends MappIntelligenceBasic
      */
     public function __construct()
     {
-        $this->pixelVersion = MappIntelligenceVersion::get();
+        // do nothing
     }
 
     /**
@@ -27,10 +25,8 @@ class MappIntelligenceSession extends MappIntelligenceBasic
     protected function getQueryList()
     {
         return array(
-            'loginStatus' => 'cs800',
-            'pixelVersion' => 'cs801',
-            'trackingPlatform' => 'cs802',
-            'parameter' => 'cs'
+            'loginStatus' => MappIntelligenceParameter::$LOGIN_STATUS,
+            'parameter' => MappIntelligenceParameter::$CUSTOM_SESSION_PARAMETER
         );
     }
 
