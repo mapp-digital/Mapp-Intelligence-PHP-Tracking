@@ -349,6 +349,48 @@ class MappIntelligenceConfig
     }
 
     /**
+     * @return int
+     */
+    private function getStatistics()
+    {
+        $statistics = 0;
+
+        if (count($this->useParamsForDefaultPageName) > 0) {
+            $statistics += 1;
+        }
+
+        if ($this->forceSSL) {
+            $statistics += 2;
+        }
+
+        if ($this->logger) {
+            $statistics += 4;
+        }
+
+        if ($this->consumerType === MappIntelligenceConsumerType::CURL) {
+            $statistics += 8;
+        }
+
+        if ($this->consumerType === MappIntelligenceConsumerType::FORK_CURL) {
+            $statistics += 16;
+        }
+
+        if ($this->consumerType === MappIntelligenceConsumerType::FILE) {
+            $statistics += 64;
+        }
+
+        if ($this->consumerType === MappIntelligenceConsumerType::FILE_ROTATION) {
+            $statistics += 128;
+        }
+
+        if ($this->consumerType === MappIntelligenceConsumerType::CUSTOM) {
+            $statistics += 256;
+        }
+
+        return $statistics;
+    }
+
+    /**
      * @param mixed $value Origin value
      * @param mixed $def Default value
      *
@@ -772,6 +814,8 @@ class MappIntelligenceConfig
             $this->maxBatchSize = 1;
         }
 
+        $statistics = $this->getStatistics();
+
         return array(
             'trackId' => $this->trackId,
             'trackDomain' => $this->trackDomain,
@@ -797,7 +841,8 @@ class MappIntelligenceConfig
             'remoteAddress' => $this->remoteAddress,
             'referrerURL' => $this->referrerURL,
             'requestURL' => $this->requestURL,
-            'cookie' => $this->cookie
+            'cookie' => $this->cookie,
+            'statistics' => $statistics
         );
     }
 }

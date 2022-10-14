@@ -30,4 +30,4 @@ lint:
 release:
 	make lint && make test-all
 
-.PHONY: start test-all test-latest test-php5 test-php7 test-php8 lint release
+.PHONY: test-all

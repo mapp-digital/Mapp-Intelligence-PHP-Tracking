@@ -28,6 +28,7 @@ class MappIntelligenceParameter
     public static $PRODUCT_COST = "co";
     public static $PRODUCT_QUANTITY = "qn";
     public static $PRODUCT_STATUS = "st";
+    public static $PIXEL_FEATURES = "pf";
 
     // predefined custom parameter and category
     // predefined urm category

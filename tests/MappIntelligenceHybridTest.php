@@ -14,6 +14,7 @@ class MappIntelligenceHybridTest extends MappIntelligenceExtendsTestCase
         $options = MappIntelligenceUnitUtil::getProperty($hybrid, 'cfg');
         $this->assertEquals(MappIntelligenceConsumerType::FILE, $options['consumerType']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $options['filename']);
+        $this->assertEquals(14, $options['statistics']);
     }
 
     public function testConfigFile()
@@ -25,6 +26,7 @@ class MappIntelligenceHybridTest extends MappIntelligenceExtendsTestCase
         $options = MappIntelligenceUnitUtil::getProperty($hybrid, 'cfg');
         $this->assertEquals(MappIntelligenceConsumerType::FILE, $options['consumerType']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $options['filename']);
+        $this->assertEquals(14, $options['statistics']);
     }
 
     public function testConsumerTypeFileRotation()
@@ -35,6 +37,7 @@ class MappIntelligenceHybridTest extends MappIntelligenceExtendsTestCase
 
         $options = MappIntelligenceUnitUtil::getProperty($hybrid, 'cfg');
         $this->assertEquals(MappIntelligenceConsumerType::FILE_ROTATION, $options['consumerType']);
+        $this->assertEquals(134, $options['statistics']);
     }
 
     public function testConsumerTypeCustom()
@@ -45,6 +48,7 @@ class MappIntelligenceHybridTest extends MappIntelligenceExtendsTestCase
 
         $options = MappIntelligenceUnitUtil::getProperty($hybrid, 'cfg');
         $this->assertEquals(MappIntelligenceConsumerType::CUSTOM, $options['consumerType']);
+        $this->assertEquals(262, $options['statistics']);
     }
 
     public function testConsumerTypeUnsupported()
@@ -55,6 +59,7 @@ class MappIntelligenceHybridTest extends MappIntelligenceExtendsTestCase
 
         $options = MappIntelligenceUnitUtil::getProperty($hybrid, 'cfg');
         $this->assertEquals(MappIntelligenceConsumerType::FILE, $options['consumerType']);
+        $this->assertEquals(22, $options['statistics']);
     }
 
     public function testOwnLogFileName()

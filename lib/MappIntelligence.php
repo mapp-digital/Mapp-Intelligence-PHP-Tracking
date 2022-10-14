@@ -53,6 +53,10 @@ class MappIntelligence
      * @var bool
      */
     private $deactivate;
+    /**
+     * @var int
+     */
+    private $statistics;
 
     /**
      * Tracking constructor.
@@ -67,6 +71,7 @@ class MappIntelligence
         $this->trackDomain = $cfg['trackDomain'];
         $this->logger = $cfg['logger'];
         $this->deactivate = $cfg['deactivate'];
+        $this->statistics = $cfg['statistics'];
 
         $this->queue = new MappIntelligenceQueue($cfg);
     }
@@ -192,6 +197,7 @@ class MappIntelligence
      */
     private function addToRequestQueue($requestData)
     {
+        $requestData[MappIntelligenceParameter::$PIXEL_FEATURES] = $this->statistics;
         $requestData[MappIntelligenceParameter::$VERSION] = MappIntelligenceVersion::get();
         $requestData[MappIntelligenceParameter::$TRACKING_PLATFORM] = self::TRACKING_PLATFORM;
 

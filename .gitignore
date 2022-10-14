@@ -32,3 +32,4 @@ Desktop.ini
 # Temp
 tmp/*
 **/tmp/*
+php-version.txt

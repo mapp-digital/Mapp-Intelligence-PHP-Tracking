@@ -7,6 +7,6 @@ class MappIntelligenceVersion
 {
     public static function get()
     {
-        return '0.0.1';
+        return '1.0.1';
     }
 }

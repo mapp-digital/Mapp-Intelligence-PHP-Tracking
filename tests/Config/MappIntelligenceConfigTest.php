@@ -35,6 +35,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testSelfConfig()
@@ -65,6 +66,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testNullConfig()
@@ -110,6 +112,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testConfigFile()
@@ -131,6 +134,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(1000, $config['maxQueueSize']);
         $this->assertEquals(true, $config['forceSSL']);
         $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testInvalidConfigFile()
@@ -151,6 +155,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(1000, $config['maxQueueSize']);
         $this->assertEquals(true, $config['forceSSL']);
         $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testOverwriteConfigFile()
@@ -178,6 +183,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(100000, $config['maxQueueSize']);
         $this->assertEquals(true, $config['forceSSL']);
         $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testConfigWithTrackIdAndTrackDomain()
@@ -218,6 +224,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(MappIntelligenceConsumerType::FILE, $config['consumerType']);
         $this->assertEquals(null, $config['consumer']);
         $this->assertEquals(1, $config['maxBatchSize']);
+        $this->assertEquals(70, $config['statistics']);
     }
 
     public function testHeaderData()
@@ -237,6 +244,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals("127.0.0.1", $config["remoteAddress"]);
         $this->assertEquals("https://sub.domain.tld/path/to/previous/page.html", $config["referrerURL"]);
         $this->assertEquals("sub.domain.tld", $config["domain"][0]);
+        $this->assertEquals(14, $config['statistics']);
     }
 
     public function testRequestURLInvalid()
@@ -378,6 +386,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
 
         $config = $mappIntelligenceConfig->build();
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertEquals(70, $config['statistics']);
     }
 
     public function testValidFileMode()
@@ -389,6 +398,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
 
         $config = $mappIntelligenceConfig->build();
         $this->assertEquals('c', $config['fileMode']);
+        $this->assertEquals(70, $config['statistics']);
     }
 
     public function testAddUseParamsForDefaultPageName()
@@ -403,6 +413,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('bar', $config['useParamsForDefaultPageName'][1]);
         $this->assertEquals('foo2', $config['useParamsForDefaultPageName'][2]);
         $this->assertEquals('bar2', $config['useParamsForDefaultPageName'][3]);
+        $this->assertEquals(15, $config['statistics']);
     }
 
     public function testCookie()

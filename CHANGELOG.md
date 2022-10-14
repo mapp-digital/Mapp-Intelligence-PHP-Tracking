@@ -1,5 +1,15 @@
+<a name="1.0.1"></a>
+# 1.0.1 (2022-10-17)
+
+## Optimization
+
+- Add tracking parameter (pf, cs801 and cs802) for tracking feature usage
+
+
 <a name="1.0.0"></a>
-## 1.0.0 (2021-01-25)
+# 1.0.0 (2021-01-25)
+
+## Feature
 
 * Possibility to configure a custom consumer (_[MappIntelligenceConsumer](https://documentation.mapp.com/latest/en/interfaces-12582807.html)_)
 * Possibility to configure a custom debug logger (_[MappIntelligenceLogger](https://documentation.mapp.com/latest/en/interfaces-12582807.html)_)
@@ -9,7 +19,8 @@
 * Added of new configuration options (_[MappIntelligenceConfig](https://documentation.mapp.com/latest/en/integration-and-configuration-12582753.html)_)
 * Refactoring [cronjob](https://documentation.mapp.com/latest/en/cron-job-12582847.html) and [hybrid](https://documentation.mapp.com/latest/en/classes-12582794.html) logic
 
+
 <a name="0.0.1"></a>
-## 0.0.1 (2020-04-07)
+# 0.0.1 (2020-04-07)
 
 * Beta release

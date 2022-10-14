@@ -116,6 +116,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testSimpleData2()
@@ -160,6 +161,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&co=59.99%3B49.99%3B15.99/', $requests[0]);
         $this->assertRegExpExtended('/\&qn=1%3B5%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testParameterMap1()
@@ -177,6 +179,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testParameterMap2()
@@ -222,6 +225,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&co=59.99%3B49.99%3B15.99/', $requests[0]);
         $this->assertRegExpExtended('/\&qn=1%3B5%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testDataObject1()
@@ -238,6 +242,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testDataObject2()
@@ -300,6 +305,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&qn=1%3B5%3B1%3B0/', $requests[0]);
         $this->assertRegExpExtended('/\&cb760=0%3B0%3B0%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testDataMap1()
@@ -316,6 +322,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testDataMap2()
@@ -386,6 +393,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&qn=1%3B5%3B1%3B0/', $requests[0]);
         $this->assertRegExpExtended('/\&cb760=0%3B0%3B0%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     public function testDataMap3()
@@ -400,6 +408,7 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,0,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
+        $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
     /**

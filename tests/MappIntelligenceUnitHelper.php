@@ -215,6 +215,23 @@ class MappIntelligenceUnitHelper extends DynamicExtender
     }
 
     /**
+     * @param string $request
+     * @param string $pixelFeatures
+     * @return bool
+     */
+    public static function checkStatistics($request, $pixelFeatures)
+    {
+        if (strpos($request, 'pf=' . $pixelFeatures) !== -1
+            && strpos($request, 'cs801=' . rawurlencode(MappIntelligenceVersion::get())) !== -1
+            && strpos($request, 'cs802=PHP') !== -1) {
+            return true;
+        }
+
+        error_log($request . ' | pf=' . $pixelFeatures);
+        return false;
+    }
+
+    /**
      * @param string $path Path to file
      * @param string $prefix Path to file
      * @param string $extension Path to file
