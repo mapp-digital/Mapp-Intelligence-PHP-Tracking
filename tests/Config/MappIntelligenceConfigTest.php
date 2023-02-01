@@ -35,6 +35,12 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertFalse($config['deactivate']);
+        $this->assertFalse($config['deactivateByInAndExclude']);
+        $this->assertEquals(0, count($config['containsInclude']));
+        $this->assertEquals(0, count($config['containsExclude']));
+        $this->assertEquals(0, count($config['matchesInclude']));
+        $this->assertEquals(0, count($config['matchesExclude']));
         $this->assertEquals(14, $config['statistics']);
     }
 
@@ -66,6 +72,12 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertFalse($config['deactivate']);
+        $this->assertFalse($config['deactivateByInAndExclude']);
+        $this->assertEquals(0, count($config['containsInclude']));
+        $this->assertEquals(0, count($config['containsExclude']));
+        $this->assertEquals(0, count($config['matchesInclude']));
+        $this->assertEquals(0, count($config['matchesExclude']));
         $this->assertEquals(14, $config['statistics']);
     }
 
@@ -86,7 +98,11 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
             ->setConsumer(null)
             ->setFilePath(null)
             ->setFilePrefix(null)
-            ->setUseParamsForDefaultPageName(null)->addUseParamsForDefaultPageName(null);
+            ->setUseParamsForDefaultPageName(null)->addUseParamsForDefaultPageName(null)
+            ->setContainsInclude(null)->addContainsInclude(null)
+            ->setContainsExclude(null)->addContainsExclude(null)
+            ->setMatchesInclude(null)->addMatchesInclude(null)
+            ->setMatchesExclude(null)->addMatchesExclude(null);
 
         $config = $mappIntelligenceConfig->build();
         $this->assertTrue(empty($config['trackId']));
@@ -112,29 +128,42 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('MappIntelligenceRequests', $config['filePrefix']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals('a', $config['fileMode']);
+        $this->assertFalse($config['deactivate']);
+        $this->assertFalse($config['deactivateByInAndExclude']);
+        $this->assertEquals(0, count($config['containsInclude']));
+        $this->assertEquals(0, count($config['containsExclude']));
+        $this->assertEquals(0, count($config['matchesInclude']));
+        $this->assertEquals(0, count($config['matchesExclude']));
         $this->assertEquals(14, $config['statistics']);
     }
 
     public function testConfigFile()
     {
         $mappIntelligenceConfig = new MappIntelligenceConfig(array(
-            'config' => './config.ini'
+            'config' => __DIR__ . '/../_cfg/config.ini'
         ));
 
         $config = $mappIntelligenceConfig->build();
-        $this->assertEquals('', $config['trackId']);
-        $this->assertEquals('', $config['trackDomain']);
-        $this->assertEquals(0, count($config['domain']));
-        $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
+        $this->assertEquals('123451234512345', $config['trackId']);
+        $this->assertEquals('analytics01.wt-eu02.net', $config['trackDomain']);
+        $this->assertEquals(2, count($config['domain']));
+        $this->assertEquals(MappIntelligenceConsumerType::FILE, $config['consumerType']);
         $this->assertEquals(null, $config['consumer']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals(1, $config['maxAttempt']);
         $this->assertEquals(100, $config['attemptTimeout']);
-        $this->assertEquals(50, $config['maxBatchSize']);
+        $this->assertEquals(1, $config['maxBatchSize']);
         $this->assertEquals(1000, $config['maxQueueSize']);
+        $this->assertEquals(1000, $config['maxFileLines']);
+        $this->assertEquals(180000, $config['maxFileDuration']);
+        $this->assertEquals(24576, $config['maxFileSize']);
         $this->assertEquals(true, $config['forceSSL']);
-        $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
-        $this->assertEquals(14, $config['statistics']);
+        $this->assertEquals(3, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(2, count($config['containsInclude']));
+        $this->assertEquals(1, count($config['containsExclude']));
+        $this->assertEquals(2, count($config['matchesInclude']));
+        $this->assertEquals(1, count($config['matchesExclude']));
+        $this->assertEquals(71, $config['statistics']);
     }
 
     public function testInvalidConfigFile()
@@ -155,13 +184,17 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(1000, $config['maxQueueSize']);
         $this->assertEquals(true, $config['forceSSL']);
         $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(0, count($config['containsInclude']));
+        $this->assertEquals(0, count($config['containsExclude']));
+        $this->assertEquals(0, count($config['matchesInclude']));
+        $this->assertEquals(0, count($config['matchesExclude']));
         $this->assertEquals(14, $config['statistics']);
     }
 
     public function testOverwriteConfigFile()
     {
         $mappIntelligenceConfig = new MappIntelligenceConfig(array(
-            'config' => './config.ini',
+            'config' => __DIR__ . '/../_cfg/config.ini',
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'maxAttempt' => 3,
@@ -173,17 +206,24 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $config = $mappIntelligenceConfig->build();
         $this->assertEquals('111111111111111', $config['trackId']);
         $this->assertEquals('analytics01.wt-eu02.net', $config['trackDomain']);
-        $this->assertEquals(0, count($config['domain']));
-        $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
+        $this->assertEquals(2, count($config['domain']));
+        $this->assertEquals(MappIntelligenceConsumerType::FILE, $config['consumerType']);
         $this->assertEquals(null, $config['consumer']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
         $this->assertEquals(3, $config['maxAttempt']);
         $this->assertEquals(200, $config['attemptTimeout']);
-        $this->assertEquals(1000, $config['maxBatchSize']);
+        $this->assertEquals(1, $config['maxBatchSize']);
         $this->assertEquals(100000, $config['maxQueueSize']);
+        $this->assertEquals(1000, $config['maxFileLines']);
+        $this->assertEquals(180000, $config['maxFileDuration']);
+        $this->assertEquals(24576, $config['maxFileSize']);
         $this->assertEquals(true, $config['forceSSL']);
-        $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
-        $this->assertEquals(14, $config['statistics']);
+        $this->assertEquals(3, count($config['useParamsForDefaultPageName']));
+        $this->assertEquals(2, count($config['containsInclude']));
+        $this->assertEquals(1, count($config['containsExclude']));
+        $this->assertEquals(2, count($config['matchesInclude']));
+        $this->assertEquals(1, count($config['matchesExclude']));
+        $this->assertEquals(71, $config['statistics']);
     }
 
     public function testConfigWithTrackIdAndTrackDomain()
@@ -428,5 +468,326 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals("bar", $config["cookie"]["foo"]);
         $this->assertEquals("123", $config["cookie"]["test"]);
         $this->assertEquals("cba", $config["cookie"]["abc"]);
+    }
+
+    public function testConfigWithContainsInclude()
+    {
+        $mappIntelligenceConfig = new MappIntelligenceConfig();
+        $mappIntelligenceConfig->setContainsInclude(array())
+            ->addContainsInclude('foo.bar.com')
+            ->addContainsInclude('www.mappIntelligence.com')
+            ->addContainsInclude('sub.domain.tld');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals('foo.bar.com', $config['containsInclude'][0]);
+        $this->assertEquals('www.mappIntelligence.com', $config['containsInclude'][1]);
+        $this->assertEquals('sub.domain.tld', $config['containsInclude'][2]);
+    }
+
+    public function testConfigWithContainsExclude()
+    {
+        $mappIntelligenceConfig = new MappIntelligenceConfig();
+        $mappIntelligenceConfig->setContainsExclude(array())
+            ->addContainsExclude('foo.bar.com')
+            ->addContainsExclude('www.mappIntelligence.com')
+            ->addContainsExclude('sub.domain.tld');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals('foo.bar.com', $config['containsExclude'][0]);
+        $this->assertEquals('www.mappIntelligence.com', $config['containsExclude'][1]);
+        $this->assertEquals('sub.domain.tld', $config['containsExclude'][2]);
+    }
+
+    public function testConfigWithMatchesInclude()
+    {
+        $mappIntelligenceConfig = new MappIntelligenceConfig();
+        $mappIntelligenceConfig->setMatchesInclude(array())
+            ->addMatchesInclude('/foo\.bar\.com/')
+            ->addMatchesInclude('/www\.mappIntelligence\.com/')
+            ->addMatchesInclude('/sub\.domain\.tld/');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals('/foo\.bar\.com/', $config['matchesInclude'][0]);
+        $this->assertEquals('/www\.mappIntelligence\.com/', $config['matchesInclude'][1]);
+        $this->assertEquals('/sub\.domain\.tld/', $config['matchesInclude'][2]);
+    }
+
+    public function testConfigWithMatchesExclude()
+    {
+        $mappIntelligenceConfig = new MappIntelligenceConfig();
+        $mappIntelligenceConfig->setMatchesExclude(array())
+            ->addMatchesExclude('/foo\.bar\.com/')
+            ->addMatchesExclude('/www\.mappIntelligence\.com/')
+            ->addMatchesExclude('/sub\.domain\.tld/');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals('/foo\.bar\.com/', $config['matchesExclude'][0]);
+        $this->assertEquals('/www\.mappIntelligence\.com/', $config['matchesExclude'][1]);
+        $this->assertEquals('/sub\.domain\.tld/', $config['matchesExclude'][2]);
+    }
+
+    public function testRequestWithContainsInclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsInclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain1.tld')
+            ->addContainsInclude('sub.domain2.tld')
+            ->addContainsInclude('sub.domain3.tld')
+            ->addContainsInclude('sub.domain.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsInclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain1.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesInclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesInclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain1\.tld/')
+            ->addMatchesInclude('/sub\.domain2\.tld/')
+            ->addMatchesInclude('/sub\.domain3\.tld/')
+            ->addMatchesInclude('/sub\.domain5[\.tld/')
+            ->addMatchesInclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesInclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesInclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain.tld')
+            ->addMatchesInclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesInclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain1.tld')
+            ->addMatchesInclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesInclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain1.tld')
+            ->addMatchesInclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsExclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsExclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain1.tld')
+            ->addContainsExclude('sub.domain2.tld')
+            ->addContainsExclude('sub.domain3.tld')
+            ->addContainsExclude('sub.domain.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsExclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain1.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesExclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesExclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesExclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->addMatchesExclude('/sub\.domain2\.tld/')
+            ->addMatchesExclude('/sub\.domain3\.tld/')
+            ->addMatchesExclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesExclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesExclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain.tld')
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesExclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain1.tld')
+            ->addMatchesExclude('/sub\.domain\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsAndMatchesExclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsExclude('sub.domain1.tld')
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsIncludeAndExclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain.tld')
+            ->addContainsExclude('.html')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsIncludeAndExclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain.tld')
+            ->addContainsExclude('sub.domain1.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithContainsIncludeAndExclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addContainsInclude('sub.domain1.tld')
+            ->addContainsExclude('sub.domain1.tld')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesIncludeAndExclude1()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain\.tld/')
+            ->addMatchesExclude('/\.html/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesIncludeAndExclude2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain\.tld/')
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(false, $config['deactivateByInAndExclude']);
+    }
+
+    public function testRequestWithMatchesIncludeAndExclude3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->addMatchesInclude('/sub\.domain1\.tld/')
+            ->addMatchesExclude('/sub\.domain1\.tld/')
+            ->setRequestURL('https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc');
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(true, $config['deactivateByInAndExclude']);
     }
 }

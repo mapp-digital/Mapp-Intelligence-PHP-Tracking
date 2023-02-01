@@ -7,6 +7,10 @@ class MappIntelligenceProperties
     const DEACTIVATE = 'deactivate';
     const DOMAIN = 'domain';
     const USE_PARAMS_FOR_DEFAULT_PAGE_NAME = 'useParamsForDefaultPageName';
+    const CONTAINS_INCLUDE = 'containsInclude';
+    const CONTAINS_EXCLUDE = 'containsExclude';
+    const MATCHES_INCLUDE = 'matchesInclude';
+    const MATCHES_EXCLUDE = 'matchesExclude';
     const CONSUMER = 'consumer';
     const CONSUMER_TYPE = 'consumerType';
     const FILE_PATH = 'filePath';

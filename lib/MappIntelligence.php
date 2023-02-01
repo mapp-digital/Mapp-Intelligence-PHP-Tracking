@@ -54,6 +54,10 @@ class MappIntelligence
      */
     private $deactivate;
     /**
+     * @var bool
+     */
+    private $deactivateByInAndExclude;
+    /**
      * @var int
      */
     private $statistics;
@@ -71,6 +75,7 @@ class MappIntelligence
         $this->trackDomain = $cfg['trackDomain'];
         $this->logger = $cfg['logger'];
         $this->deactivate = $cfg['deactivate'];
+        $this->deactivateByInAndExclude = $cfg['deactivateByInAndExclude'];
         $this->statistics = $cfg['statistics'];
 
         $this->queue = new MappIntelligenceQueue($cfg);
@@ -174,6 +179,11 @@ class MappIntelligence
 
         if (!$this->trackId || !$this->trackDomain) {
             $this->logger->log(MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_TRACKING);
+            return false;
+        }
+
+        if ($this->deactivateByInAndExclude) {
+            $this->logger->log(MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED_BY_IN_AND_EXCLUDE);
             return false;
         }
 

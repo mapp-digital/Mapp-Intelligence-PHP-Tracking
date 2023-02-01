@@ -102,6 +102,25 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertEquals(0, count($requests));
     }
 
+    public function testTrackingIsDeactivatedByIncludeExclude()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net',
+            'matchesInclude' => array('/sub\.domain1\.tld/'),
+            'matchesExclude' => array('/sub\.domain1\.tld/'),
+            'requestURL' => 'https://sub.domain.tld:80/path/to/page.html?foo=bar&test=123#abc'
+        ));
+
+        $mappIntelligence->flush();
+        $this->assertEquals(false, $mappIntelligence->track(array(
+            'pn' => 'en.page.test'
+        )));
+
+        $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+        $this->assertEquals(0, count($requests));
+    }
+
     public function testSimpleData1()
     {
         $mappIntelligence = MappIntelligence::getInstance(array(

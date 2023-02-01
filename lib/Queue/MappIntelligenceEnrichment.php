@@ -40,6 +40,24 @@ class MappIntelligenceEnrichment
     }
 
     /**
+     * @param array $url
+     *
+     * @return string
+     */
+    public static function unParseURI($url)
+    {
+        $host = isset($url['host']) ? $url['host'] : '';
+        $port = isset($url['port']) ? ':' . $url['port'] : '';
+        $user = isset($url['user']) ? $url['user'] : '';
+        $pass = isset($url['pass']) ? ':' . $url['pass']  : '';
+        $pass = ($user || $pass) ? "$pass@" : '';
+        $path = isset($url['path']) ? $url['path'] : '';
+        $query = isset($url['query']) ? '?' . $url['query'] : '';
+
+        return "$user$pass$host$port$path$query";
+    }
+
+    /**
      * @return int
      */
     private function getTimestamp()
@@ -191,23 +209,6 @@ class MappIntelligenceEnrichment
     }
 
     /**
-     * @param $url
-     * @return string
-     */
-    private function unParseURI($url)
-    {
-        $host = isset($url['host']) ? $url['host'] : '';
-        $port = isset($url['port']) ? ':' . $url['port'] : '';
-        $user = isset($url['user']) ? $url['user'] : '';
-        $pass = isset($url['pass']) ? ':' . $url['pass']  : '';
-        $pass = ($user || $pass) ? "$pass@" : '';
-        $path = isset($url['path']) ? $url['path'] : '';
-        $query = isset($url['query']) ? '?' . $url['query'] : '';
-
-        return "$user$pass$host$port$path$query";
-    }
-
-    /**
      * @param string $pixelVersion
      * @param string $context
      *
@@ -278,7 +279,7 @@ class MappIntelligenceEnrichment
             return '';
         }
 
-        return $this->unParseURI($this->requestURL);
+        return self::unParseURI($this->requestURL);
     }
 
     /**

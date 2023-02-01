@@ -26,6 +26,7 @@ class MappIntelligenceMessages
     public static $REQUIRED_TRACK_ID_AND_DOMAIN_FOR_COOKIE;
     public static $REQUIRED_TRACK_ID_AND_DOMAIN_FOR_TRACKING;
     public static $TRACKING_IS_DEACTIVATED = 'Mapp Intelligence tracking is deactivated';
+    public static $TRACKING_IS_DEACTIVATED_BY_IN_AND_EXCLUDE;
     public static $SENT_BATCH_REQUESTS = 'Sent batch requests, current queue size is %s req.';
     public static $BATCH_REQUEST_FAILED = 'Batch request failed!';
     public static $CURRENT_QUEUE_STATUS = 'Batch of %s req. sent, current queue size is %s req.';
@@ -65,6 +66,8 @@ MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_COOKIE
     = MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN . ' for user cookie';
 MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN_FOR_TRACKING
     = MappIntelligenceMessages::$REQUIRED_TRACK_ID_AND_DOMAIN . ' to track data';
+MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED_BY_IN_AND_EXCLUDE
+    = MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED . ' by include / exclude';
 
 MappIntelligenceMessages::$OPTION_FILENAME
     = sprintf(MappIntelligenceMessages::$OPTION_FILENAME, sys_get_temp_dir() . '/MappIntelligenceRequests.log');

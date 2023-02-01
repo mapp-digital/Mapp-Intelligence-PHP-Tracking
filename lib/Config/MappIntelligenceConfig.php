@@ -3,9 +3,11 @@
 require_once __DIR__ . '/MappIntelligenceProperties.php';
 require_once __DIR__ . '/MappIntelligenceConfigProperties.php';
 require_once __DIR__ . '/MappIntelligenceDefaultLogger.php';
+require_once __DIR__ . '/../MappIntelligenceMessages.php';
 require_once __DIR__ . '/../MappIntelligenceLogger.php';
 require_once __DIR__ . '/../MappIntelligenceDebugLogger.php';
 require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerType.php';
+require_once __DIR__ . '/../Queue/MappIntelligenceEnrichment.php';
 
 /**
  * Class MappIntelligenceConfig
@@ -73,6 +75,10 @@ class MappIntelligenceConfig
      * Deactivate the tracking functionality.
      */
     private $deactivate = false;
+    /**
+     * Deactivate the tracking functionality.
+     */
+    private $deactivateByInAndExclude = false;
     /**
      * Activates the debug mode.
      */
@@ -161,6 +167,22 @@ class MappIntelligenceConfig
      * Map with cookies.
      */
     private $cookie = array();
+    /**
+     * If the string is contained in the request URL, the request is measured.
+     */
+    private $containsInclude = array();
+    /**
+     * If the string is contained in the request URL, the request isn't measured.
+     */
+    private $containsExclude = array();
+    /**
+     * If the regular expression matches the request URL, the request is measured.
+     */
+    private $matchesInclude = array();
+    /**
+     * If the regular expression matches the request URL, the request isn't measured.
+     */
+    private $matchesExclude = array();
 
     /**
      * MappIntelligenceConfig constructor.
@@ -274,6 +296,22 @@ class MappIntelligenceConfig
         ->setForceSSL($prop->getBooleanProperty(
             MappIntelligenceProperties::FORCE_SSL,
             true
+        ))
+        ->setContainsInclude($prop->getListProperty(
+            MappIntelligenceProperties::CONTAINS_INCLUDE,
+            $this->containsInclude
+        ))
+        ->setContainsExclude($prop->getListProperty(
+            MappIntelligenceProperties::CONTAINS_EXCLUDE,
+            $this->containsExclude
+        ))
+        ->setMatchesInclude($prop->getListProperty(
+            MappIntelligenceProperties::MATCHES_INCLUDE,
+            $this->matchesInclude
+        ))
+        ->setMatchesExclude($prop->getListProperty(
+            MappIntelligenceProperties::MATCHES_EXCLUDE,
+            $this->matchesExclude
         ));
     }
 
@@ -388,6 +426,81 @@ class MappIntelligenceConfig
         }
 
         return $statistics;
+    }
+
+    /**
+     * @param array $list List of strings, if is contained in the request URL, the request is/isn't measured
+     *
+     * @return boolean
+     */
+    private function checkContains($list)
+    {
+        $requestURL = MappIntelligenceEnrichment::unParseURI($this->requestURL);
+        for ($i = 0; $i < count($list); $i++) {
+            $s = $list[$i];
+            if (strpos($requestURL, $s) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array $list List of regular expressions, if it matches the request URL, the request is/isn't measured
+     *
+     * @return boolean
+     */
+    private function checkMatches($list)
+    {
+        $requestURL = MappIntelligenceEnrichment::unParseURI($this->requestURL);
+        for ($i = 0; $i < count($list); $i++) {
+            $s = $list[$i];
+            try {
+                if (preg_match($s, $requestURL)) {
+                    return true;
+                }
+            } catch (Exception $e) {
+                $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return boolean
+     */
+    private function isDeactivateByInAndExclude()
+    {
+        if (empty($this->requestURL)) {
+            return false;
+        }
+
+        $isContainsIncludeEmpty = count($this->containsInclude) === 0;
+        $isMatchesIncludeEmpty = count($this->matchesInclude) === 0;
+        $isContainsExcludeEmpty = count($this->containsExclude) === 0;
+        $isMatchesExcludeEmpty = count($this->matchesExclude) === 0;
+
+        $isIncluded = $isContainsIncludeEmpty && $isMatchesIncludeEmpty;
+
+        if (!$isContainsIncludeEmpty) {
+            $isIncluded = $this->checkContains($this->containsInclude);
+        }
+
+        if (!$isIncluded && !$isMatchesIncludeEmpty) {
+            $isIncluded = $this->checkMatches($this->matchesInclude);
+        }
+
+        if ($isIncluded && !$isContainsExcludeEmpty) {
+            $isIncluded = !$this->checkContains($this->containsExclude);
+        }
+
+        if ($isIncluded && !$isMatchesExcludeEmpty) {
+            $isIncluded = !$this->checkMatches($this->matchesExclude);
+        }
+
+        return !$isIncluded;
     }
 
     /**
@@ -765,6 +878,105 @@ class MappIntelligenceConfig
     }
 
     /**
+     * @param array $cInclude Specify the strings that must be contained in the request URL to measure the request
+     *
+     * @return $this
+     */
+    public function setContainsInclude($cInclude)
+    {
+        $this->containsInclude = $this->getOrDefault($cInclude, $this->containsInclude);
+        return $this;
+    }
+
+    /**
+     * @param string $cInclude Specify the string that must be contained in the request URL to measure the request
+     *
+     * @return $this
+     */
+    public function addContainsInclude($cInclude)
+    {
+        if (!is_null($cInclude)) {
+            $this->containsInclude[] = $cInclude;
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $cExclude Specify the strings that must be contained in the request URL to not measure the request
+     *
+     * @return $this
+     */
+    public function setContainsExclude($cExclude)
+    {
+        $this->containsExclude = $this->getOrDefault($cExclude, $this->containsExclude);
+        return $this;
+    }
+
+    /**
+     * @param string $cExclude Specify the string that must be contained in the request URL to not measure the request
+     *
+     * @return $this
+     */
+    public function addContainsExclude($cExclude)
+    {
+        if (!is_null($cExclude)) {
+            $this->containsExclude[] = $cExclude;
+        }
+        return $this;
+    }
+
+
+    /**
+     * @param array $mInclude Specify the regular expressions that must be match the request URL to measure the request
+     *
+     * @return $this
+     */
+    public function setMatchesInclude($mInclude)
+    {
+        $this->matchesInclude = $this->getOrDefault($mInclude, $this->matchesInclude);
+        return $this;
+    }
+
+    /**
+     * @param string $mInclude Specify the regular expression that must be match the request URL to measure the request
+     *
+     * @return $this
+     */
+    public function addMatchesInclude($mInclude)
+    {
+        if (!is_null($mInclude)) {
+            $this->matchesInclude[] = $mInclude;
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $mExclude Specify the regular expressions that must be match the request URL to not
+     *                        measure the request
+     *
+     * @return $this
+     */
+    public function setMatchesExclude($mExclude)
+    {
+        $this->matchesExclude = $this->getOrDefault($mExclude, $this->matchesExclude);
+        return $this;
+    }
+
+    /**
+     * @param string $mExclude Specify the regular expression that must be match the request URL to not
+     *                         measure the request
+     *
+     * @return $this
+     */
+    public function addMatchesExclude($mExclude)
+    {
+        if (!is_null($mExclude)) {
+            $this->matchesExclude[] = $mExclude;
+        }
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function build()
@@ -814,6 +1026,11 @@ class MappIntelligenceConfig
             $this->maxBatchSize = 1;
         }
 
+        if (count($this->containsInclude) > 0 || count($this->containsExclude) > 0
+            || count($this->matchesInclude) > 0 || count($this->matchesExclude) > 0) {
+            $this->deactivateByInAndExclude = $this->isDeactivateByInAndExclude();
+        }
+
         $statistics = $this->getStatistics();
 
         return array(
@@ -821,6 +1038,7 @@ class MappIntelligenceConfig
             'trackDomain' => $this->trackDomain,
             'domain' => $this->domain,
             'deactivate' => $this->deactivate,
+            'deactivateByInAndExclude' => $this->deactivateByInAndExclude,
             'logger' => $this->logger,
             'consumer' => $this->consumer,
             'consumerType' => $this->consumerType,
@@ -842,6 +1060,10 @@ class MappIntelligenceConfig
             'referrerURL' => $this->referrerURL,
             'requestURL' => $this->requestURL,
             'cookie' => $this->cookie,
+            'containsInclude' => $this->containsInclude,
+            'containsExclude' => $this->containsExclude,
+            'matchesInclude' => $this->matchesInclude,
+            'matchesExclude' => $this->matchesExclude,
             'statistics' => $statistics
         );
     }

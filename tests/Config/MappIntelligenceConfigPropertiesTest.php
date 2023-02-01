@@ -26,6 +26,10 @@ class MappIntelligenceConfigPropertiesTest extends MappIntelligenceExtendsTestCa
         $this->assertEquals(1000, $props->getIntegerProperty('maxQueueSize', 1000));
         $this->assertEquals(true, $props->getBooleanProperty('forceSSL', true));
         $this->assertEquals(0, count($props->getListProperty('useParamsForDefaultPageName', array())));
+        $this->assertEquals(0, count($props->getListProperty('containsInclude', array())));
+        $this->assertEquals(0, count($props->getListProperty('containsExclude', array())));
+        $this->assertEquals(0, count($props->getListProperty('matchesInclude', array())));
+        $this->assertEquals(0, count($props->getListProperty('matchesExclude', array())));
     }
 
     public function testStringProperty()
@@ -49,7 +53,11 @@ class MappIntelligenceConfigPropertiesTest extends MappIntelligenceExtendsTestCa
         $props = new MappIntelligenceConfigProperties('');
         MappIntelligenceUnitHelper::setProperty($props, 'prop', array(
             'domain' => array('www.mapp.com', 'sub.domain.tld'),
-            'useParamsForDefaultPageName' => array('foo', 'bar')
+            'useParamsForDefaultPageName' => array('foo', 'bar'),
+            'containsInclude' => array('foo', 'bar'),
+            'containsExclude' => array('test'),
+            'matchesInclude' => array('/.*foo.*/', '/.*bar.*/'),
+            'matchesExclude' => array('/.*test.*/')
         ));
 
         $domain = $props->getListProperty('domain', array());
@@ -61,6 +69,24 @@ class MappIntelligenceConfigPropertiesTest extends MappIntelligenceExtendsTestCa
         $this->assertEquals(2, count($useParamsForDefaultPageName));
         $this->assertEquals('foo', $useParamsForDefaultPageName[0]);
         $this->assertEquals('bar', $useParamsForDefaultPageName[1]);
+
+        $containsInclude = $props->getListProperty('containsInclude', array());
+        $this->assertEquals(2, count($containsInclude));
+        $this->assertEquals('foo', $containsInclude[0]);
+        $this->assertEquals('bar', $containsInclude[1]);
+
+        $containsExclude = $props->getListProperty('containsExclude', array());
+        $this->assertEquals(1, count($containsExclude));
+        $this->assertEquals('test', $containsExclude[0]);
+
+        $matchesInclude = $props->getListProperty('matchesInclude', array());
+        $this->assertEquals(2, count($matchesInclude));
+        $this->assertEquals('/.*foo.*/', $matchesInclude[0]);
+        $this->assertEquals('/.*bar.*/', $matchesInclude[1]);
+
+        $matchesExclude = $props->getListProperty('matchesExclude', array());
+        $this->assertEquals(1, count($matchesExclude));
+        $this->assertEquals('/.*test.*/', $matchesExclude[0]);
     }
 
     public function testBooleanProperty1()
