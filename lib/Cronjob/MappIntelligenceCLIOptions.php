@@ -21,6 +21,7 @@ class MappIntelligenceCLIOptions
     const FILE_PREFIX = 'filePrefix';
     const DEACTIVATE = 'deactivate';
     const LOGGER = 'logger';
+    const LOG_LEVEL = 'logLevel';
     const HELP = 'help';
     const DEBUG = 'debug';
     const VERSION = 'version';

@@ -100,7 +100,8 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '111111111111111',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'tmp/webtrekk.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
         $options = MappIntelligenceUnitUtil::getProperty($this->mic, 'cfg');
@@ -114,6 +115,7 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'temp/webtrekk.log',
             'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG,
             'deactivate' => true
         ));
 
@@ -129,10 +131,17 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '111111111111111',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'temp/webtrekk.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
-        $this->assertEquals('Request log files "' . MAIN_DIRECTORY . 'temp/webtrekk.log" not found', $this->mic->run());
+        $this->assertEquals(1, $this->mic->run());
+
+        $fileContent = MappIntelligenceUnitUtil::getErrorLog();
+        $this->assertContainsExtended(
+            'Request log files "' . MAIN_DIRECTORY . 'temp/webtrekk.log" not found',
+            $fileContent[0]
+        );
     }
 
     public function testRenamingLogfileFailed()
@@ -146,14 +155,11 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '111111111111111',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'tmp/foo_bar.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
-        $this->assertRegExpExtended(
-            '/Renaming from ' . preg_quote(MAIN_DIRECTORY, '/') . 'tmp\/foo_bar\.log to '
-            . preg_quote(MAIN_DIRECTORY, '/') . 'tmp\/MappIntelligenceRequests\-\d+\.log failed/',
-            $this->mic->run()
-        );
+        $this->assertEquals(1, $this->mic->run());
 
         fclose($handle);
         unlink(MAIN_DIRECTORY . 'tmp/foo_bar.log');
@@ -171,7 +177,8 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '111111111111111',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'tmp/foo_bar.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
         $this->assertEquals(0, $this->mic->run());
@@ -191,7 +198,8 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '111111111111111',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'tmp/foo_bar.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
         $this->assertEquals(1, $this->mic->run());
@@ -222,7 +230,8 @@ class MappIntelligenceCronjobTest extends MappIntelligenceExtendsTestCase
             'i' => '123451234512345',
             'd' => 'q3.webtrekk.net',
             'f' => MAIN_DIRECTORY . 'tmp/foo_bar.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
 
         $this->assertEquals(0, $this->mic->run());

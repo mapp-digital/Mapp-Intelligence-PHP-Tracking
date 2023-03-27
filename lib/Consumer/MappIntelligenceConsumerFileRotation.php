@@ -110,7 +110,7 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
         try {
             $f = fopen($path, 'a++');
         } catch (Exception $e) {
-            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
 
         return $f;
@@ -128,9 +128,18 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
         $absolutePath = $this->filePath . $this->filename;
 
         if (file_exists($absolutePath)) {
-            $this->logger->log(MappIntelligenceMessages::$USE_EXISTING_LOG_FILE, $this->filename, $absolutePath);
+            $this->logger->debug(
+                MappIntelligenceMessages::$USE_EXISTING_LOG_FILE,
+                $this->filename,
+                $absolutePath
+            );
         } else {
-            $this->logger->log(MappIntelligenceMessages::$CREATE_NEW_LOG_FILE, $this->filename, $absolutePath, 'true');
+            $this->logger->debug(
+                MappIntelligenceMessages::$CREATE_NEW_LOG_FILE,
+                $this->filename,
+                $absolutePath,
+                'true'
+            );
         }
 
         $this->file = $this->getFileResource($absolutePath);
@@ -153,7 +162,7 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
                 throw new MappIntelligenceConsumerFileRotationException($message);
             }
         } catch (Exception $e) {
-            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
 
         return $lines;
@@ -196,7 +205,7 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
                 $this->timestamp = $this->extractTimestamp();
             }
         } else {
-            $this->logger->log(MappIntelligenceMessages::$DIRECTORY_NOT_EXIST, $this->filePath);
+            $this->logger->error(MappIntelligenceMessages::$DIRECTORY_NOT_EXIST, $this->filePath);
         }
     }
 
@@ -214,10 +223,10 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
                 $this->searchWriteableFile();
                 return;
             } else {
-                $this->logger->log(MappIntelligenceMessages::$CANNOT_RENAME_TEMPORARY_FILE);
+                $this->logger->error(MappIntelligenceMessages::$CANNOT_RENAME_TEMPORARY_FILE);
             }
         } catch (Exception $e) {
-            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
 
         $this->createNewTempFile();
@@ -275,11 +284,11 @@ class MappIntelligenceConsumerFileRotation extends MappIntelligenceAbstractConsu
             fwrite($this->file, $payload);
 
             $currentBatchSize = count($batchContent);
-            $this->logger->log(MappIntelligenceMessages::$WRITE_BATCH_DATA, $this->filename, $currentBatchSize);
+            $this->logger->debug(MappIntelligenceMessages::$WRITE_BATCH_DATA, $this->filename, $currentBatchSize);
 
             $status = true;
         } catch (Exception $e) {
-            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
 
         return $status;

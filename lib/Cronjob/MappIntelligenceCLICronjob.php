@@ -47,6 +47,7 @@ class MappIntelligenceCLICronjob
     private $deactivate;
     /**
      * Activates the debug mode.
+     * @var MappIntelligenceDebugLogger
      */
     private $logger;
 
@@ -110,6 +111,7 @@ class MappIntelligenceCLICronjob
         $options->addOption('f', $options::FILE_PATH, true, MappIntelligenceMessages::$OPTION_FILE_PATH);
         $options->addOption('p', $options::FILE_PREFIX, true, MappIntelligenceMessages::$OPTION_FILE_PREFIX);
 
+        $options->addOption('ll', $options::LOG_LEVEL, true, MappIntelligenceMessages::$OPTION_LOG_LEVEL);
         $options->addOption('', $options::DEACTIVATE, false, MappIntelligenceMessages::$OPTION_DEACTIVATE);
         $options->addOption('', $options::HELP, false, MappIntelligenceMessages::$OPTION_HELP);
         $options->addOption('', $options::DEBUG, false, MappIntelligenceMessages::$OPTION_DEBUG);
@@ -146,6 +148,10 @@ class MappIntelligenceCLICronjob
 
             if ($options->hasOption($options::DEBUG)) {
                 $mappConfig->setDebug(true);
+            }
+
+            if ($options->hasOption($options::LOG_LEVEL)) {
+                $mappConfig->setLogLevel($options->getOptionValue($options::LOG_LEVEL));
             }
 
             if ($options->hasOption($options::DEACTIVATE)) {
@@ -208,7 +214,7 @@ class MappIntelligenceCLICronjob
     public function run()
     {
         if ($this->deactivate) {
-            $this->logger->log(MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED);
+            $this->logger->info(MappIntelligenceMessages::$TRACKING_IS_DEACTIVATED);
             return self::EXIT_STATUS_SUCCESS;
         }
 

@@ -19,7 +19,7 @@ abstract class MappIntelligenceAbstractConsumer implements MappIntelligenceConsu
     const MAX_BATCH_SIZE = 10 * 1000;
 
     /**
-     * @var MappIntelligenceLogger
+     * @var MappIntelligenceDebugLogger
      */
     protected $logger;
     /**
@@ -61,7 +61,11 @@ abstract class MappIntelligenceAbstractConsumer implements MappIntelligenceConsu
     {
         $currentBatchSize = count($batchContent);
         if ($currentBatchSize > self::MAX_BATCH_SIZE) {
-            $this->logger->log(MappIntelligenceMessages::$TO_LARGE_BATCH_SIZE, self::MAX_BATCH_SIZE, $currentBatchSize);
+            $this->logger->error(
+                MappIntelligenceMessages::$TO_LARGE_BATCH_SIZE,
+                self::MAX_BATCH_SIZE,
+                $currentBatchSize
+            );
             return false;
         }
 
@@ -73,7 +77,7 @@ abstract class MappIntelligenceAbstractConsumer implements MappIntelligenceConsu
         $payload = implode($glue, $batchContent);
         if (strlen($payload) >= self::MAX_PAYLOAD_SIZE) {
             $currentPayloadSize = round(strlen($payload) / 1024 / 1024, 2);
-            $this->logger->log(MappIntelligenceMessages::$TO_LARGE_PAYLOAD_SIZE, $currentPayloadSize);
+            $this->logger->error(MappIntelligenceMessages::$TO_LARGE_PAYLOAD_SIZE, $currentPayloadSize);
             return false;
         }
 

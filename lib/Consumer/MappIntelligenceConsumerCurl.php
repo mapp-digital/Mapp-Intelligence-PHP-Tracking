@@ -21,7 +21,7 @@ class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
 
         // @codeCoverageIgnoreStart
         if (!function_exists('curl_init')) {
-            $this->logger->log(MappIntelligenceMessages::$CURL_PHP_EXTENSION_IS_REQUIRED, $this->type);
+            $this->logger->error(MappIntelligenceMessages::$CURL_PHP_EXTENSION_IS_REQUIRED, $this->type);
         }
         // @codeCoverageIgnoreEnd
     }
@@ -39,7 +39,7 @@ class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
 
         $url = $this->getUrl();
         $currentBatchSize = count($batchContent);
-        $this->logger->log(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
+        $this->logger->debug(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
 
         // ToDo: support "Content-Encoding: gzip"
 
@@ -59,12 +59,12 @@ class MappIntelligenceConsumerCurl extends MappIntelligenceAbstractConsumer
         curl_exec($s);
         $httpStatus = curl_getinfo($s, CURLINFO_HTTP_CODE);
 
-        $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
+        $this->logger->debug(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
 
         if ($httpStatus !== 200) {
             $errno = curl_errno($s);
             $error = curl_error($s);
-            $this->logger->log(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $errno, $error);
+            $this->logger->warn(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $errno, $error);
 
             curl_close($s);
             return false;

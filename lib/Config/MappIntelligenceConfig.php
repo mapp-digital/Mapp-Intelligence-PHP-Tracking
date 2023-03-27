@@ -5,6 +5,7 @@ require_once __DIR__ . '/MappIntelligenceConfigProperties.php';
 require_once __DIR__ . '/MappIntelligenceDefaultLogger.php';
 require_once __DIR__ . '/../MappIntelligenceMessages.php';
 require_once __DIR__ . '/../MappIntelligenceLogger.php';
+require_once __DIR__ . '/../MappIntelligenceLogLevel.php';
 require_once __DIR__ . '/../MappIntelligenceDebugLogger.php';
 require_once __DIR__ . '/../Consumer/MappIntelligenceConsumerType.php';
 require_once __DIR__ . '/../Queue/MappIntelligenceEnrichment.php';
@@ -81,12 +82,17 @@ class MappIntelligenceConfig
     private $deactivateByInAndExclude = false;
     /**
      * Activates the debug mode.
+     * @var MappIntelligenceDebugLogger
      */
     private $logger;
     /**
      * Activates the debug mode.
      */
     private $debug = false;
+    /**
+     * Defined the debug log level.
+     */
+    private $logLevel = MappIntelligenceLogLevel::ERROR;
     /**
      * The consumer to use for data transfer to Intelligence.
      */
@@ -151,6 +157,30 @@ class MappIntelligenceConfig
      * HTTP user agent string.
      */
     private $userAgent = '';
+    /**
+     * HTTP header for Sec-CH-UA
+     */
+    private $clientHintUserAgent = '';
+    /**
+     * HTTP header for Sec-CH-UA-Full-Version-List
+     */
+    private $clientHintUserAgentFullVersionList = '';
+    /**
+     * HTTP header for Sec-CH-UA-Model
+     */
+    private $clientHintUserAgentModel = '';
+    /**
+     * HTTP header for Sec-CH-UA-Mobile
+     */
+    private $clientHintUserAgentMobile = '';
+    /**
+     * HTTP header for Sec-CH-UA-Platform
+     */
+    private $clientHintUserAgentPlatform = '';
+    /**
+     * HTTP header for Sec-CH-UA-Platform-Version
+     */
+    private $clientHintUserAgentPlatformVersion = '';
     /**
      * Remote address (ip) from the client.
      */
@@ -232,6 +262,10 @@ class MappIntelligenceConfig
         ->setDomain($prop->getListProperty(
             MappIntelligenceProperties::DOMAIN,
             $this->domain
+        ))
+        ->setLogLevel($prop->getStringProperty(
+            MappIntelligenceProperties::LOG_LEVEL,
+            $this->logLevel
         ))
         ->setUseParamsForDefaultPageName($prop->getListProperty(
             MappIntelligenceProperties::USE_PARAMS_FOR_DEFAULT_PAGE_NAME,
@@ -461,7 +495,7 @@ class MappIntelligenceConfig
                     return true;
                 }
             } catch (Exception $e) {
-                $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+                $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
             }
         }
 
@@ -543,7 +577,100 @@ class MappIntelligenceConfig
      */
     public function setUserAgent($ua)
     {
-        $this->userAgent = $this->getOrDefault(rawurldecode($ua), $this->userAgent);
+        if ($ua) {
+            $this->userAgent = $this->getOrDefault(rawurldecode($ua), $this->userAgent);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgent($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgent = $this->getOrDefault(rawurldecode($ch), $this->clientHintUserAgent);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA-Full-Version-List
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgentFullVersionList($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgentFullVersionList = $this->getOrDefault(
+                rawurldecode($ch),
+                $this->clientHintUserAgentFullVersionList
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA-Model
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgentModel($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgentModel = $this->getOrDefault(rawurldecode($ch), $this->clientHintUserAgentModel);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA-Mobile
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgentMobile($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgentMobile = $this->getOrDefault(rawurldecode($ch), $this->clientHintUserAgentMobile);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA-Platform
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgentPlatform($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgentPlatform = $this->getOrDefault(rawurldecode($ch), $this->clientHintUserAgentPlatform);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $ch HTTP Header for Sec-CH-UA-Platform-Version
+     *
+     * @return $this
+     */
+    public function setClientHintUserAgentPlatformVersion($ch)
+    {
+        if ($ch) {
+            $this->clientHintUserAgentPlatformVersion = $this->getOrDefault(
+                rawurldecode($ch),
+                $this->clientHintUserAgentPlatformVersion
+            );
+        }
+
         return $this;
     }
 
@@ -554,7 +681,10 @@ class MappIntelligenceConfig
      */
     public function setRemoteAddress($ra)
     {
-        $this->remoteAddress = $this->getOrDefault(rawurldecode($ra), $this->remoteAddress);
+        if ($ra) {
+            $this->remoteAddress = $this->getOrDefault(rawurldecode($ra), $this->remoteAddress);
+        }
+
         return $this;
     }
 
@@ -645,7 +775,7 @@ class MappIntelligenceConfig
     public function setLogger($l)
     {
         if ($l instanceof MappIntelligenceLogger) {
-            $this->logger = new MappIntelligenceDebugLogger($l);
+            $this->logger = new MappIntelligenceDebugLogger($l, $this->logLevel);
         }
 
         return $this;
@@ -663,6 +793,25 @@ class MappIntelligenceConfig
         }
 
         return $this;
+    }
+
+    /**
+     * @param mixed $ll Specify the debug log level
+     *
+     * @return $this
+     */
+    public function setLogLevel($ll)
+    {
+        $type = gettype($ll);
+        if ($type === 'integer') {
+            if ($ll >= MappIntelligenceLogLevel::NONE && $ll <= MappIntelligenceLogLevel::DEBUG) {
+                $this->logLevel = $ll;
+            }
+        } elseif ($type === 'string') {
+            return $this->setLogLevel(MappIntelligenceLogLevel::getValue($ll));
+        }
+
+        return $this->setLogger($this->logger);
     }
 
     /**
@@ -1040,6 +1189,7 @@ class MappIntelligenceConfig
             'deactivate' => $this->deactivate,
             'deactivateByInAndExclude' => $this->deactivateByInAndExclude,
             'logger' => $this->logger,
+            'logLevel' => $this->logLevel,
             'consumer' => $this->consumer,
             'consumerType' => $this->consumerType,
             'filePath' => $this->filePath,
@@ -1056,6 +1206,12 @@ class MappIntelligenceConfig
             'forceSSL' => $this->forceSSL,
             'useParamsForDefaultPageName' => $this->useParamsForDefaultPageName,
             'userAgent' => $this->userAgent,
+            'clientHintUserAgent' => $this->clientHintUserAgent,
+            'clientHintUserAgentFullVersionList' => $this->clientHintUserAgentFullVersionList,
+            'clientHintUserAgentModel' => $this->clientHintUserAgentModel,
+            'clientHintUserAgentMobile' => $this->clientHintUserAgentMobile,
+            'clientHintUserAgentPlatform' => $this->clientHintUserAgentPlatform,
+            'clientHintUserAgentPlatformVersion' => $this->clientHintUserAgentPlatformVersion,
             'remoteAddress' => $this->remoteAddress,
             'referrerURL' => $this->referrerURL,
             'requestURL' => $this->requestURL,

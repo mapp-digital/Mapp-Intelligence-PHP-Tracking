@@ -300,6 +300,7 @@ class MappIntelligenceCLICronjobTest extends MappIntelligenceExtendsTestCase
         $mappIntelligenceConfig = new MappIntelligenceConfig(self::CONFIG_FILE);
         $mappIntelligenceConfig->setDeactivate(true);
         $mappIntelligenceConfig->setDebug(true);
+        $mappIntelligenceConfig->setLogLevel(MappIntelligenceLogLevel::DEBUG);
 
         try {
             $cron = new MappIntelligenceCLICronjob($mappIntelligenceConfig);

@@ -23,7 +23,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -39,7 +40,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -56,6 +58,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG,
             'maxBatchSize' => 10
         ));
         $queue = new MappIntelligenceQueue($c->build());
@@ -89,7 +92,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -109,7 +113,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -129,7 +134,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -141,6 +147,126 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertRegExpExtended('/\&X\-WT\-UA=test/', $requests[0]);
     }
 
+    public function testWithClientHints()
+    {
+        $clientHintUserAgent = "%22Chromium%22%3Bv%3D%22112%22%2C%20%22Google%20Chrome%22"
+            . "%3Bv%3D%22112%22%2C%20%22Not%3AA-Brand%22%3Bv%3D%2299%20";
+        $clientHintUserAgentFullVersionList = "%22Chromium%22%3Bv%3D%22110.0.5481.65%22%2C%20%22"
+            . "Not%20A%28Brand%22%3Bv%3D%2224.0.0.0%22%2C%20%22Google%20Chrome%22%3Bv%3D%22110.0.5481.65%22";
+        $clientHintUserAgentMobile = "%3F1";
+        $clientHintUserAgentModel = "%22SM-A715F%22";
+        $clientHintUserAgentPlatform = "%22macOS%22";
+        $clientHintUserAgentPlatformVersion = "%2213.0.0%22";
+
+        $mappIntelligenceConfig = (new MappIntelligenceConfig(
+            array(
+                'trackId' => '111111111111111',
+                'trackDomain' => 'analytics01.wt-eu02.net',
+                'debug' => true,
+                'logLevel' => MappIntelligenceLogLevel::DEBUG
+            )
+        ))
+            ->setClientHintUserAgent($clientHintUserAgent)
+            ->setClientHintUserAgentFullVersionList($clientHintUserAgentFullVersionList)
+            ->setClientHintUserAgentMobile($clientHintUserAgentMobile)
+            ->setClientHintUserAgentModel($clientHintUserAgentModel)
+            ->setClientHintUserAgentPlatform($clientHintUserAgentPlatform)
+            ->setClientHintUserAgentPlatformVersion($clientHintUserAgentPlatformVersion);
+
+        $queue = new MappIntelligenceQueue($mappIntelligenceConfig->build());
+        $queue->add(array());
+
+        $requests = MappIntelligenceUnitUtil::getQueue($queue);
+        $this->assertEquals(1, count($requests));
+        $this->assertRegExpExtended("/^wt\\?p=600,0,,,,,[0-9]{13},0,,&.+/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA=" . $clientHintUserAgent . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=" . $clientHintUserAgentModel . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/", $requests[0]);
+    }
+
+    public function testWithClientHints2()
+    {
+        $clientHintUserAgent = "%22Chromium%22%3Bv%3D%22112%22%2C%20%22Google%20Chrome%22"
+            . "%3Bv%3D%22112%22%2C%20%22Not%3AA-Brand%22%3Bv%3D%2299%20";
+        $clientHintUserAgentFullVersionList = "%22Chromium%22%3Bv%3D%22110.0.5481.65%22%2C%20%22"
+            . "Not%20A%28Brand%22%3Bv%3D%2224.0.0.0%22%2C%20%22Google%20Chrome%22%3Bv%3D%22110.0.5481.65%22";
+        $clientHintUserAgentMobile = "%3F1";
+        $clientHintUserAgentModel = "%22SM-A715F%22";
+        $clientHintUserAgentPlatform = "%22macOS%22";
+        $clientHintUserAgentPlatformVersion = "%2213.0.0%22";
+
+        $mappIntelligenceConfig = (new MappIntelligenceConfig(
+            array(
+                'trackId' => '111111111111111',
+                'trackDomain' => 'analytics01.wt-eu02.net',
+                'debug' => true,
+                'logLevel' => MappIntelligenceLogLevel::DEBUG
+            )
+        ))
+            ->setClientHintUserAgent($clientHintUserAgent)
+            ->setClientHintUserAgentFullVersionList($clientHintUserAgentFullVersionList)
+            ->setClientHintUserAgentMobile($clientHintUserAgentMobile)
+            ->setClientHintUserAgentModel($clientHintUserAgentModel)
+            ->setClientHintUserAgentPlatform($clientHintUserAgentPlatform)
+            ->setClientHintUserAgentPlatformVersion($clientHintUserAgentPlatformVersion);
+
+        $queue = new MappIntelligenceQueue($mappIntelligenceConfig->build());
+        $queue->add("wt?p=300,0");
+
+        $requests = MappIntelligenceUnitUtil::getQueue($queue);
+        $this->assertEquals(1, count($requests));
+        $this->assertRegExpExtended("/^wt\\?p=300,0&.+/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA=" . $clientHintUserAgent . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=" . $clientHintUserAgentModel . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/", $requests[0]);
+    }
+
+    public function testWithClientHints3()
+    {
+        $clientHintUserAgent = "%22Chromium%22%3Bv%3D%22112%22%2C%20%22Google%20Chrome%22"
+            . "%3Bv%3D%22112%22%2C%20%22Not%3AA-Brand%22%3Bv%3D%2299%20";
+        $clientHintUserAgentFullVersionList = "%22Chromium%22%3Bv%3D%22110.0.5481.65%22%2C%20%22"
+            . "Not%20A%28Brand%22%3Bv%3D%2224.0.0.0%22%2C%20%22Google%20Chrome%22%3Bv%3D%22110.0.5481.65%22";
+        $clientHintUserAgentMobile = "%3F1";
+        $clientHintUserAgentModel = "%22SM-A715F%22";
+        $clientHintUserAgentPlatform = "%22macOS%22";
+        $clientHintUserAgentPlatformVersion = "%2213.0.0%22";
+
+        $mappIntelligenceConfig = (new MappIntelligenceConfig(
+            array(
+                'trackId' => '111111111111111',
+                'trackDomain' => 'analytics01.wt-eu02.net',
+                'debug' => true,
+                'logLevel' => MappIntelligenceLogLevel::DEBUG
+            )
+        ))
+            ->setClientHintUserAgent($clientHintUserAgent)
+            ->setClientHintUserAgentFullVersionList($clientHintUserAgentFullVersionList)
+            ->setClientHintUserAgentMobile($clientHintUserAgentMobile)
+            ->setClientHintUserAgentModel($clientHintUserAgentModel)
+            ->setClientHintUserAgentPlatform($clientHintUserAgentPlatform)
+            ->setClientHintUserAgentPlatformVersion($clientHintUserAgentPlatformVersion);
+
+        $queue = new MappIntelligenceQueue($mappIntelligenceConfig->build());
+        $queue->add("wt?p=300,0&X-WT-SEC-CH-UA=sec-ch-ua&X-WT-SEC-CH-UA-FULL-VERSION-LIST=sec-ch-ua-full-version-list&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version");
+
+        $requests = MappIntelligenceUnitUtil::getQueue($queue);
+        $this->assertEquals(1, count($requests));
+        $this->assertRegExpExtended("/^wt\\?p=300,0&.+/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA=sec-ch-ua/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=sec-ch-ua-full-version-list/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version/", $requests[0]);
+    }
+
     public function testWithRemoteAddr()
     {
         $mockRemoteAddr = '127.0.0.1';
@@ -149,7 +275,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -169,7 +296,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -189,7 +317,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -212,7 +341,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -239,7 +369,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -262,7 +393,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -287,7 +419,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -312,7 +445,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -337,7 +471,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '222222222222222',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -367,6 +502,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG,
             'useParamsForDefaultPageName' => array(
                 'aa', 'bb', 'cc'
             )
@@ -401,6 +537,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG,
             'useParamsForDefaultPageName' => array(
                 'aa', 'bb', 'cc'
             )
@@ -428,7 +565,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -447,7 +585,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -470,7 +609,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'domain' => array('sub.domain.tld'),
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -493,7 +633,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'domain' => array('sub.domain.tld'),
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -513,7 +654,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'domain' => array('/.+\.domain\.tld/'),
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -533,7 +675,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
             'domain' => array('/[a-z]{3}\.domain\.tld)/'),
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -619,7 +762,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
     public function testFlushEmptyQueueWithDebug()
     {
         $c = new MappIntelligenceConfig(array(
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -635,7 +779,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 
@@ -659,7 +804,8 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $c = new MappIntelligenceConfig(array(
             'trackId' => '123451234512345',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $queue = new MappIntelligenceQueue($c->build());
 

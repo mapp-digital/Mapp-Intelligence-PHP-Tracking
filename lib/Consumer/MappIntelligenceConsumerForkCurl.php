@@ -21,7 +21,7 @@ class MappIntelligenceConsumerForkCurl extends MappIntelligenceAbstractConsumer
 
         // @codeCoverageIgnoreStart
         if (!function_exists('exec')) {
-            $this->logger->log(MappIntelligenceMessages::$EXEC_MUST_BE_EXIST, $this->type);
+            $this->logger->error(MappIntelligenceMessages::$EXEC_MUST_BE_EXIST, $this->type);
         }
         // @codeCoverageIgnoreEnd
 
@@ -29,7 +29,7 @@ class MappIntelligenceConsumerForkCurl extends MappIntelligenceAbstractConsumer
         $execEnabled = !in_array('exec', $disableFunctions);
         // @codeCoverageIgnoreStart
         if (!$execEnabled) {
-            $this->logger->log(MappIntelligenceMessages::$EXEC_MUST_BE_ENABLED, $this->type);
+            $this->logger->error(MappIntelligenceMessages::$EXEC_MUST_BE_ENABLED, $this->type);
         }
         // @codeCoverageIgnoreEnd
     }
@@ -57,21 +57,21 @@ class MappIntelligenceConsumerForkCurl extends MappIntelligenceAbstractConsumer
 
         $url = $this->getUrl();
         $currentBatchSize = count($batchContent);
-        $this->logger->log(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
+        $this->logger->debug(MappIntelligenceMessages::$SEND_BATCH_DATA, $url, $currentBatchSize);
 
         $command = 'curl -X POST -H "Content-Type: text/plain"';
         $command .= ' -d "' . $payload . '"';
         $command .= ' -s -o /dev/null -w "%{http_code}"';
         $command .= ' "' . $url . '"';
 
-        $this->logger->log(MappIntelligenceMessages::$EXECUTE_COMMAND, $command);
+        $this->logger->debug(MappIntelligenceMessages::$EXECUTE_COMMAND, $command);
         $this->execute($command, $output, $return_var);
 
         $httpStatus = intval((count($output)) > 0 ? $output[0] : 0);
-        $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
+        $this->logger->debug(MappIntelligenceMessages::$BATCH_REQUEST_STATUS, $httpStatus);
 
         if ($httpStatus !== 200) {
-            $this->logger->log(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $httpStatus, $return_var);
+            $this->logger->warn(MappIntelligenceMessages::$BATCH_RESPONSE_TEXT, $httpStatus, $return_var);
         }
 
         return $httpStatus === 200;

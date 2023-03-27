@@ -19,7 +19,7 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     private $consumer;
     /**
-     * @var MappIntelligenceLogger
+     * @var MappIntelligenceDebugLogger
      */
     private $logger;
     /**
@@ -91,7 +91,7 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
     {
         $currentQueueSize = count($this->queue);
         $wasRequestSuccessful = true;
-        $this->logger->log(MappIntelligenceMessages::$SENT_BATCH_REQUESTS, $currentQueueSize);
+        $this->logger->debug(MappIntelligenceMessages::$SENT_BATCH_REQUESTS, $currentQueueSize);
 
         while ($currentQueueSize > 0 && $wasRequestSuccessful) {
             $batchSize = min($this->maxBatchSize, $currentQueueSize);
@@ -99,20 +99,45 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
             $wasRequestSuccessful = $this->sendBatch($batchContent);
 
             if (!$wasRequestSuccessful) {
-                $this->logger->log(MappIntelligenceMessages::$BATCH_REQUEST_FAILED);
+                $this->logger->warn(MappIntelligenceMessages::$BATCH_REQUEST_FAILED);
 
                 $this->queue = array_merge($batchContent, $this->queue);
             }
 
             $currentQueueSize = count($this->queue);
-            $this->logger->log(MappIntelligenceMessages::$CURRENT_QUEUE_STATUS, $batchSize, $currentQueueSize);
+            $this->logger->debug(MappIntelligenceMessages::$CURRENT_QUEUE_STATUS, $batchSize, $currentQueueSize);
         }
 
         if ($currentQueueSize === 0) {
-            $this->logger->log(MappIntelligenceMessages::$QUEUE_IS_EMPTY);
+            $this->logger->debug(MappIntelligenceMessages::$QUEUE_IS_EMPTY);
         }
 
         return $wasRequestSuccessful;
+    }
+
+    /**
+     * @param array $data Query parameter map
+     * @param string $key Query parameter key
+     * @param string $value Query parameter value
+     */
+    private function addQueryParameterToArray(&$data, $key, $value)
+    {
+        if (!empty($value)) {
+            $data[$key] = $value;
+        }
+    }
+
+    /**
+     * @param string $str Tracking request data
+     * @param array $data Query parameter map
+     * @param string $key Query parameter key
+     * @param string $value Query parameter value
+     */
+    private function addNotExistingQueryParameterToArray($str, &$data, $key, $value)
+    {
+        if (strpos($str, $key) === false) {
+            $this->addQueryParameterToArray($data, $key, $value);
+        }
     }
 
     /**
@@ -122,23 +147,57 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
     private function addRequestAsString($data)
     {
         $params = array();
-
-        if (strpos($data, MappIntelligenceParameter::$USER_AGENT) === false) {
-            $userAgent = $this->getUserAgent();
-            if ($userAgent) {
-                $params[MappIntelligenceParameter::$USER_AGENT] = $userAgent;
-            }
-        }
-
-        if (strpos($data, MappIntelligenceParameter::$USER_IP) === false) {
-            $userIP = $this->getRemoteAddress();
-            if ($userIP) {
-                $params[MappIntelligenceParameter::$USER_IP] = $userIP;
-            }
-        }
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$USER_IP,
+            $this->getRemoteAddress()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$USER_AGENT,
+            $this->getUserAgent()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT,
+            $this->getClientHintUserAgent()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_FULL_VERSION_LIST,
+            $this->getClientHintUserAgentFullVersionList()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_MODEL,
+            $this->getClientHintUserAgentModel()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_MOBILE,
+            $this->getClientHintUserAgentMobile()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_PLATFORM,
+            $this->getClientHintUserAgentPlatform()
+        );
+        $this->addNotExistingQueryParameterToArray(
+            $data,
+            $params,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_PLATFORM_VERSION,
+            $this->getClientHintUserAgentPlatformVersion()
+        );
 
         $request = $data;
-        $request .= (!empty($params) ? '&' . http_build_query($params, null, '&', PHP_QUERY_RFC3986) : '');
+        $request .= (!empty($params) ? '&' . http_build_query($params, '', '&', PHP_QUERY_RFC3986) : '');
         $this->queue[] = $request;
 
         return $request;
@@ -150,28 +209,59 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
      */
     private function addRequestAsArray($data)
     {
-        $request = '';
-        $eid = $this->getEverId();
-        if ($eid) {
-            $eidArray = array(
-                MappIntelligenceParameter::$EVER_ID => $eid
-            );
-            $data = array_merge($eidArray, $data);
-        }
-
-        $userAgent = $this->getUserAgent();
-        if ($userAgent) {
-            $data[MappIntelligenceParameter::$USER_AGENT] = $userAgent;
-        }
-
-        $userIP = $this->getRemoteAddress();
-        if ($userIP) {
-            $data[MappIntelligenceParameter::$USER_IP] = $userIP;
-        }
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$USER_IP,
+            $this->getRemoteAddress()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$EVER_ID,
+            $this->getEverId()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$USER_AGENT,
+            $this->getUserAgent()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT,
+            $this->getClientHintUserAgent()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_FULL_VERSION_LIST,
+            $this->getClientHintUserAgentFullVersionList()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_MODEL,
+            $this->getClientHintUserAgentModel()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_MOBILE,
+            $this->getClientHintUserAgentMobile()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_PLATFORM,
+            $this->getClientHintUserAgentPlatform()
+        );
+        $this->addQueryParameterToArray(
+            $data,
+            MappIntelligenceParameter::$CLIENT_HINT_USER_AGENT_PLATFORM_VERSION,
+            $this->getClientHintUserAgentPlatformVersion()
+        );
 
         $requestURI = $this->getRequestURI();
         if ($requestURI) {
-            $data[MappIntelligenceParameter::$PAGE_URL] = 'https://' . $requestURI;
+            $this->addQueryParameterToArray(
+                $data,
+                MappIntelligenceParameter::$PAGE_URL,
+                'https://' . $requestURI
+            );
         }
 
         $pageName = array_key_exists(MappIntelligenceParameter::$PAGE_NAME, $data)
@@ -179,8 +269,8 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
             : $this->getDefaultPageName();
         unset($data[MappIntelligenceParameter::$PAGE_NAME]);
 
-        $request .= 'wt?p=' . $this->getMandatoryQueryParameter($pageName)
-            . '&' . http_build_query($data, null, '&', PHP_QUERY_RFC3986);
+        $request = 'wt?p=' . $this->getMandatoryQueryParameter($pageName)
+            . '&' . http_build_query($data, '', '&', PHP_QUERY_RFC3986);
         $this->queue[] = $request;
 
         return $request;
@@ -206,7 +296,11 @@ class MappIntelligenceQueue extends MappIntelligenceEnrichment
         }
 
         $currentQueueSize = count($this->queue);
-        $this->logger->log(MappIntelligenceMessages::$ADD_THE_FOLLOWING_REQUEST_TO_QUEUE, $currentQueueSize, $request);
+        $this->logger->debug(
+            MappIntelligenceMessages::$ADD_THE_FOLLOWING_REQUEST_TO_QUEUE,
+            $currentQueueSize,
+            $request
+        );
 
         if ($currentQueueSize >= $this->maxBatchSize) {
             $this->flush();

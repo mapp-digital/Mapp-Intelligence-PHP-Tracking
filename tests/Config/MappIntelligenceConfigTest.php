@@ -16,6 +16,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertTrue(empty($config['trackDomain']));
         $this->assertEquals(0, count($config['domain']));
         $this->assertTrue($config['logger'] instanceof MappIntelligenceDebugLogger);
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config['logLevel']);
         $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
         $this->assertNull($config['consumer']);
         $this->assertEquals(1, $config['maxAttempt']);
@@ -53,6 +54,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertTrue(empty($config['trackDomain']));
         $this->assertEquals(0, count($config['domain']));
         $this->assertTrue($config['logger'] instanceof MappIntelligenceDebugLogger);
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config['logLevel']);
         $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
         $this->assertNull($config['consumer']);
         $this->assertEquals(1, $config['maxAttempt']);
@@ -88,12 +90,19 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
             ->setTrackId(null)
             ->setTrackDomain(null)
             ->setUserAgent(null)
+            ->setClientHintUserAgent(null)
+            ->setClientHintUserAgentFullVersionList(null)
+            ->setClientHintUserAgentMobile(null)
+            ->setClientHintUserAgentModel(null)
+            ->setClientHintUserAgentPlatform(null)
+            ->setClientHintUserAgentPlatformVersion(null)
             ->setRemoteAddress(null)
             ->setReferrerURL(null)
             ->setRequestURL(null)
             ->setCookie(null)->addCookie(null, null)->addCookie("", null)->addCookie(null, "")
             ->setDomain(null)->addDomain(null)
             ->setLogger(null)
+            ->setLogLevel(null)
             ->setConsumerType(null)
             ->setConsumer(null)
             ->setFilePath(null)
@@ -109,6 +118,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertTrue(empty($config['trackDomain']));
         $this->assertEquals(0, count($config['domain']));
         $this->assertTrue($config['logger'] instanceof MappIntelligenceDebugLogger);
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config['logLevel']);
         $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
         $this->assertNull($config['consumer']);
         $this->assertEquals(1, $config['maxAttempt']);
@@ -121,6 +131,12 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals(true, $config['forceSSL']);
         $this->assertEquals(0, count($config['useParamsForDefaultPageName']));
         $this->assertTrue(empty($config['userAgent']));
+        $this->assertTrue(empty($config['clientHintUserAgent']));
+        $this->assertTrue(empty($config['clientHintUserAgentFullVersionList']));
+        $this->assertTrue(empty($config['clientHintUserAgentModel']));
+        $this->assertTrue(empty($config['clientHintUserAgentMobile']));
+        $this->assertTrue(empty($config['clientHintUserAgentPlatform']));
+        $this->assertTrue(empty($config['clientHintUserAgentPlatformVersion']));
         $this->assertTrue(empty($config['remoteAddress']));
         $this->assertTrue(empty($config['referrerURL']));
         $this->assertEquals(0, count($config['requestURL']));
@@ -147,6 +163,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('123451234512345', $config['trackId']);
         $this->assertEquals('analytics01.wt-eu02.net', $config['trackDomain']);
         $this->assertEquals(2, count($config['domain']));
+        $this->assertEquals(MappIntelligenceLogLevel::DEBUG, $config['logLevel']);
         $this->assertEquals(MappIntelligenceConsumerType::FILE, $config['consumerType']);
         $this->assertEquals(null, $config['consumer']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
@@ -174,6 +191,7 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('', $config['trackId']);
         $this->assertEquals('', $config['trackDomain']);
         $this->assertEquals(0, count($config['domain']));
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config['logLevel']);
         $this->assertEquals(MappIntelligenceConsumerType::CURL, $config['consumerType']);
         $this->assertEquals(null, $config['consumer']);
         $this->assertEquals(sys_get_temp_dir() . '/MappIntelligenceRequests.log', $config['filename']);
@@ -272,6 +290,19 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
         $mappIntelligenceConfig = new MappIntelligenceConfig();
         $mappIntelligenceConfig
             ->setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0")
+            ->setClientHintUserAgent(
+                "%22Chromium%22%3Bv%3D%22112%22%2C%20%22Google%20Chrome%22%3Bv"
+                ."%3D%22112%22%2C%20%22Not%3AA-Brand%22%3Bv%3D%2299%22"
+            )
+            ->setClientHintUserAgentFullVersionList(
+                "%22Chromium%22%3Bv%3D%22110.0.5481.65%22%2C%20%22Not"
+                ."%20A(Brand%22%3Bv%3D%2224.0.0.0%22%2C%20%22Google%20"
+                ."Chrome%22%3Bv%3D%22110.0.5481.65%22"
+            )
+            ->setClientHintUserAgentMobile("?1")
+            ->setClientHintUserAgentModel("%22SM-A715F%22")
+            ->setClientHintUserAgentPlatform("%22macOS%22")
+            ->setClientHintUserAgentPlatformVersion("%2213.0.0%22")
             ->setRemoteAddress("127.0.0.1")
             ->setReferrerURL("https://sub.domain.tld/path/to/previous/page.html")
             ->setRequestURL("https://sub.domain.tld/path/to/page.html?foo=bar&test=123#abc");
@@ -281,6 +312,18 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
             $config["userAgent"]
         );
+        $this->assertEquals(
+            "\"Chromium\";v=\"112\", \"Google Chrome\";v=\"112\", \"Not:A-Brand\";v=\"99\"",
+            $config["clientHintUserAgent"]
+        );
+        $this->assertEquals(
+            "\"Chromium\";v=\"110.0.5481.65\", \"Not A(Brand\";v=\"24.0.0.0\", \"Google Chrome\";v=\"110.0.5481.65\"",
+            $config["clientHintUserAgentFullVersionList"]
+        );
+        $this->assertEquals("?1", $config["clientHintUserAgentMobile"]);
+        $this->assertEquals("\"SM-A715F\"", $config["clientHintUserAgentModel"]);
+        $this->assertEquals("\"macOS\"", $config["clientHintUserAgentPlatform"]);
+        $this->assertEquals("\"13.0.0\"", $config["clientHintUserAgentPlatformVersion"]);
         $this->assertEquals("127.0.0.1", $config["remoteAddress"]);
         $this->assertEquals("https://sub.domain.tld/path/to/previous/page.html", $config["referrerURL"]);
         $this->assertEquals("sub.domain.tld", $config["domain"][0]);
@@ -789,5 +832,59 @@ class MappIntelligenceConfigTest extends MappIntelligenceExtendsTestCase
 
         $config = $mappIntelligenceConfig->build();
         $this->assertEquals(true, $config['deactivateByInAndExclude']);
+    }
+
+    public function testSetLogLevelInt()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel(MappIntelligenceLogLevel::INFO);
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::INFO, $config["logLevel"]);
+    }
+
+    public function testSetLogLevelInt2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel(7);
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config["logLevel"]);
+    }
+
+    public function testSetLogLevelInt3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel(-7);
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config["logLevel"]);
+    }
+
+    public function testSetLogLevelString()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel("INFO");
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::INFO, $config["logLevel"]);
+    }
+
+    public function testSetLogLevelString2()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel("info");
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::INFO, $config["logLevel"]);
+    }
+
+    public function testSetLogLevelString3()
+    {
+        $mappIntelligenceConfig = (new MappIntelligenceConfig())
+            ->setLogLevel("TRACE");
+
+        $config = $mappIntelligenceConfig->build();
+        $this->assertEquals(MappIntelligenceLogLevel::ERROR, $config["logLevel"]);
     }
 }

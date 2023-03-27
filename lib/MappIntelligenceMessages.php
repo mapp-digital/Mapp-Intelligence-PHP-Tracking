@@ -32,7 +32,7 @@ class MappIntelligenceMessages
     public static $CURRENT_QUEUE_STATUS = 'Batch of %s req. sent, current queue size is %s req.';
     public static $QUEUE_IS_EMPTY = 'MappIntelligenceQueue is empty';
     public static $ADD_THE_FOLLOWING_REQUEST_TO_QUEUE = 'Add the following request to queue (%s req.): %s';
-    public static $MAPP_INTELLIGENCE = '[Mapp Intelligence]: ';
+    public static $MAPP_INTELLIGENCE = 'Mapp Intelligence';
 
     // Mapp Intelligence cronjob
     public static $REQUIRED_TRACK_ID = 'Argument "-i" or alternative "--trackId" are required';
@@ -52,6 +52,9 @@ class MappIntelligenceMessages
     public static $OPTION_DEACTIVATE = 'Deactivate the tracking functionality.';
     public static $OPTION_HELP = 'Display the help (this text) and exit.';
     public static $OPTION_DEBUG = 'Activates the debug mode. The debug mode sends messages to the command line.';
+    public static $OPTION_LOG_LEVEL = 'If you set this to a particular level, it will show all messages at that '
+        . 'level and at higher levels of importance. You can set the following values: '
+        . '"DEBUG", "INFO", "WARN", "ERROR", "FATAL" and "NONE".';
     public static $OPTION_VERSION = 'Display version and exit.';
     public static $REQUEST_LOG_FILES_NOT_FOUND = 'Request log files "%s" not found';
     public static $RENAME_EXPIRED_TEMPORARY_FILE = 'Rename expired temporary file into log file';

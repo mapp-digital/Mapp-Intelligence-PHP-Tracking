@@ -84,7 +84,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePathFail,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -97,7 +98,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePathFail,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -111,7 +113,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -125,7 +128,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -143,7 +147,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -160,7 +165,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -170,7 +176,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertContainsExtended('Create new file mapp_intelligence_test', $fileContent[0]);
         $this->assertContainsExtended('Write batch data in mapp_intelligence_test', $fileContent[1]);
         $this->assertContainsExtended(
-            "wt?p=300,0\n",
+            "wt?p=300,0
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -180,7 +187,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -192,7 +200,12 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertContainsExtended('Write batch data in mapp_intelligence_test', $fileContent[1]);
         $this->assertContainsExtended('Write batch data in mapp_intelligence_test', $fileContent[2]);
         $this->assertContainsExtended(
-            "wt?p=300,0\nwt?p=300,1\nwt?p=300,2\nwt?p=300,3\nwt?p=300,4\n",
+            "wt?p=300,0
+wt?p=300,1
+wt?p=300,2
+wt?p=300,3
+wt?p=300,4
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -202,7 +215,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $c = new MappIntelligenceConfig(array(
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer1 = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -216,7 +230,12 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertContainsExtended('Write batch data in mapp_intelligence_test', $fileContent[1]);
         $this->assertContainsExtended('Write batch data in mapp_intelligence_test', $fileContent[2]);
         $this->assertContainsExtended(
-            "wt?p=300,0\nwt?p=300,1\nwt?p=300,2\nwt?p=300,3\nwt?p=300,4\n",
+            "wt?p=300,0
+wt?p=300,1
+wt?p=300,2
+wt?p=300,3
+wt?p=300,4
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -227,7 +246,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileLines' => 5,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -241,11 +261,21 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertEquals(1, count($tmp));
         $this->assertEquals(1, count($log));
         $this->assertContainsExtended(
-            "wt?p=300,0\nwt?p=300,1\nwt?p=300,2\nwt?p=300,3\nwt?p=300,4\n",
+            "wt?p=300,0
+wt?p=300,1
+wt?p=300,2
+wt?p=300,3
+wt?p=300,4
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.log')
         );
         $this->assertContainsExtended(
-            "wt?p=300,5\nwt?p=300,6\nwt?p=300,7\nwt?p=300,8\nwt?p=300,9\n",
+            "wt?p=300,5
+wt?p=300,6
+wt?p=300,7
+wt?p=300,8
+wt?p=300,9
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -256,7 +286,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileDuration' => 1000,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -271,11 +302,15 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertEquals(1, count($tmp));
         $this->assertEquals(1, count($log));
         $this->assertContainsExtended(
-            "wt?p=300,0\nwt?p=300,1\n",
+            "wt?p=300,0
+wt?p=300,1
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.log')
         );
         $this->assertContainsExtended(
-            "wt?p=300,2\nwt?p=300,3\n",
+            "wt?p=300,2
+wt?p=300,3
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -286,7 +321,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileSize' => 10,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -301,11 +337,15 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
         $this->assertEquals(1, count($tmp));
         $this->assertEquals(1, count($log));
         $this->assertContainsExtended(
-            "wt?p=300,0\nwt?p=300,1\n",
+            "wt?p=300,0
+wt?p=300,1
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.log')
         );
         $this->assertContainsExtended(
-            "wt?p=300,2\nwt?p=300,3\n",
+            "wt?p=300,2
+wt?p=300,3
+",
             MappIntelligenceUnitUtil::getFileContent($this->tempFilePath, $this->tempFilePrefix, '.tmp')
         );
     }
@@ -321,7 +361,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileLines' => 5,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -349,7 +390,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileLines' => 5,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -368,7 +410,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileSize' => 10,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -391,7 +434,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileSize' => 10,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -423,7 +467,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileSize' => 10,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 
@@ -449,7 +494,8 @@ abstract class MappIntelligenceConsumerFileRotationTestCase extends MappIntellig
             'filePath' => $this->tempFilePath,
             'filePrefix' => $this->tempFilePrefix,
             'maxFileSize' => 10,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFileRotation($c->build());
 

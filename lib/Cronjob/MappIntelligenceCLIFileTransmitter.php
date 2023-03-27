@@ -27,6 +27,11 @@ class MappIntelligenceCLIFileTransmitter
      * The path to your request logging file.
      */
     private $filename;
+    /**
+     * Activates the debug mode.
+     * @var MappIntelligenceDebugLogger
+     */
+    private $logger;
 
     /**
      * MappIntelligenceCLIFileTransmitter constructor.
@@ -36,6 +41,7 @@ class MappIntelligenceCLIFileTransmitter
     {
         $this->cfg = $cfg;
         $this->filename = $this->cfg[MappIntelligenceProperties::FILE_NAME];
+        $this->logger = $this->cfg[MappIntelligenceProperties::LOGGER];
     }
 
     /**
@@ -50,7 +56,8 @@ class MappIntelligenceCLIFileTransmitter
                 throw new MappIntelligenceCLIException($renamingError);
             }
         } catch (Exception $e) {
-            return $e->getMessage();
+            $this->logger->error($e->getMessage());
+            return self::EXIT_STATUS_FAIL;
         }
 
         $fileLines = MappIntelligenceCLIFile::getFileContent($tmpFilename);
@@ -90,7 +97,8 @@ class MappIntelligenceCLIFileTransmitter
     public function send()
     {
         if (!file_exists($this->filename)) {
-            return sprintf(MappIntelligenceMessages::$REQUEST_LOG_FILES_NOT_FOUND, $this->filename);
+            $this->logger->info(sprintf(MappIntelligenceMessages::$REQUEST_LOG_FILES_NOT_FOUND, $this->filename));
+            return self::EXIT_STATUS_FAIL;
         }
 
         return $this->sendRequests();

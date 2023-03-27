@@ -14,10 +14,18 @@ class MappIntelligenceEnrichment
     private $useParamsForDefaultPageName;
     private $everId;
     private $userAgent;
+    private $clientHintUserAgent;
+    private $clientHintUserAgentFullVersionList;
+    private $clientHintUserAgentModel;
+    private $clientHintUserAgentMobile;
+    private $clientHintUserAgentPlatform;
+    private $clientHintUserAgentPlatformVersion;
     private $remoteAddress;
     private $referrerURL;
     private $requestURL;
     private $cookie;
+
+
 
     /**
      * MappIntelligenceEnrichment constructor.
@@ -31,6 +39,12 @@ class MappIntelligenceEnrichment
         $this->useParamsForDefaultPageName = $config['useParamsForDefaultPageName'];
 
         $this->userAgent = $config['userAgent'];
+        $this->clientHintUserAgent = $config['clientHintUserAgent'];
+        $this->clientHintUserAgentFullVersionList = $config['clientHintUserAgentFullVersionList'];
+        $this->clientHintUserAgentModel = $config['clientHintUserAgentModel'];
+        $this->clientHintUserAgentMobile = $config['clientHintUserAgentMobile'];
+        $this->clientHintUserAgentPlatform = $config['clientHintUserAgentPlatform'];
+        $this->clientHintUserAgentPlatformVersion = $config['clientHintUserAgentPlatformVersion'];
         $this->remoteAddress = $config['remoteAddress'];
         $this->referrerURL = $config['referrerURL'];
         $this->requestURL = $config['requestURL'];
@@ -260,6 +274,54 @@ class MappIntelligenceEnrichment
     final protected function getUserAgent()
     {
         return $this->userAgent;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgent()
+    {
+        return $this->clientHintUserAgent;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgentFullVersionList()
+    {
+        return $this->clientHintUserAgentFullVersionList;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgentModel()
+    {
+        return $this->clientHintUserAgentModel;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgentMobile()
+    {
+        return $this->clientHintUserAgentMobile;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgentPlatform()
+    {
+        return $this->clientHintUserAgentPlatform;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getClientHintUserAgentPlatformVersion()
+    {
+        return $this->clientHintUserAgentPlatformVersion;
     }
 
     /**

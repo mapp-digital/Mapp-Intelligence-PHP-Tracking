@@ -40,7 +40,7 @@ class MappIntelligenceConsumerFile extends MappIntelligenceAbstractConsumer
         try {
             $this->handle = fopen($this->filename, $this->fileMode);
         } catch (Exception $e) {
-            $this->logger->log(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
+            $this->logger->error(MappIntelligenceMessages::$GENERIC_ERROR, $e->getFile(), $e->getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ class MappIntelligenceConsumerFile extends MappIntelligenceAbstractConsumer
         }
 
         $currentBatchSize = count($batchContent);
-        $this->logger->log(MappIntelligenceMessages::$WRITE_BATCH_DATA, $this->filename, $currentBatchSize);
+        $this->logger->debug(MappIntelligenceMessages::$WRITE_BATCH_DATA, $this->filename, $currentBatchSize);
 
         $payload .= "\n";
 

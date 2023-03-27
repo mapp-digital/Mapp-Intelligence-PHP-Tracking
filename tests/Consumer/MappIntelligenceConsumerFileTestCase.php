@@ -77,7 +77,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => __DIR__ . '/../../../temp/mapp_intelligence_test.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         new MappIntelligenceConsumerFile($c->build());
 
@@ -89,7 +90,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => __DIR__ . '/../../../temp/mapp_intelligence_test.log',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFile($c->build());
 
@@ -105,7 +107,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => $this->tempFilename,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFile($c->build());
 
@@ -119,7 +122,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => $this->tempFilename,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFile($c->build());
 
@@ -133,7 +137,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => $this->tempFilename,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFile($c->build());
 
@@ -150,7 +155,8 @@ abstract class MappIntelligenceConsumerFileTestCase extends MappIntelligenceExte
     {
         $c = new MappIntelligenceConfig(array(
             'filename' => $this->tempFilename,
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerFile($c->build());
 

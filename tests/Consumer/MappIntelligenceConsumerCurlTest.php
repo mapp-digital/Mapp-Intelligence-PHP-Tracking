@@ -74,7 +74,8 @@ class MappIntelligenceConsumerCurlTest extends MappIntelligenceExtendsTestCase
     public function testNewConsumerCurl()
     {
         $c = new MappIntelligenceConfig(array(
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         new MappIntelligenceConsumerCurl($c->build());
 
@@ -87,7 +88,8 @@ class MappIntelligenceConsumerCurlTest extends MappIntelligenceExtendsTestCase
         $c = new MappIntelligenceConfig(array(
             'trackId' => '123451234512345',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerCurl($c->build());
 
@@ -108,7 +110,8 @@ class MappIntelligenceConsumerCurlTest extends MappIntelligenceExtendsTestCase
         $c = new MappIntelligenceConfig(array(
             'trackId' => '111111111111111',
             'trackDomain' => 'analytics01.wt-eu02.net',
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerCurl($c->build());
 
@@ -128,7 +131,8 @@ class MappIntelligenceConsumerCurlTest extends MappIntelligenceExtendsTestCase
     public function testMaxBatchSize()
     {
         $c = new MappIntelligenceConfig(array(
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerCurl($c->build());
 
@@ -141,7 +145,8 @@ class MappIntelligenceConsumerCurlTest extends MappIntelligenceExtendsTestCase
     public function testMaxPayloadSize()
     {
         $c = new MappIntelligenceConfig(array(
-            'debug' => true
+            'debug' => true,
+            'logLevel' => MappIntelligenceLogLevel::DEBUG
         ));
         $consumer = new MappIntelligenceConsumerCurl($c->build());
 

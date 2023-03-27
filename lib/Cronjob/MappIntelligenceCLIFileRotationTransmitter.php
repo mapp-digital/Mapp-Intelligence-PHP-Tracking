@@ -33,6 +33,7 @@ class MappIntelligenceCLIFileRotationTransmitter
     private $filePrefix;
     /**
      * Activates the debug mode.
+     * @var MappIntelligenceDebugLogger
      */
     private $logger;
 
@@ -83,13 +84,13 @@ class MappIntelligenceCLIFileRotationTransmitter
     public function send()
     {
         if (MappIntelligenceCLIFile::checkTemporaryFiles($this->filePath, $this->filePrefix)) {
-            $this->logger->log(MappIntelligenceMessages::$RENAME_EXPIRED_TEMPORARY_FILE);
+            $this->logger->error(MappIntelligenceMessages::$RENAME_EXPIRED_TEMPORARY_FILE);
         }
 
         try {
             $files = MappIntelligenceCLIFile::getLogFiles($this->filePath, $this->filePrefix);
         } catch (MappIntelligenceCLIException $e) {
-            $this->logger->log($e->getMessage());
+            $this->logger->info($e->getMessage());
             return self::EXIT_STATUS_FAIL;
         }
 

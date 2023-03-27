@@ -8,27 +8,35 @@ require_once __DIR__ . '/MappIntelligenceCustomParameter.php';
 class MappIntelligenceParameter
 {
     // special parameter
-    public static $USER_AGENT = "X-WT-UA";
-    public static $USER_IP = "X-WT-IP";
+    public static $USER_AGENT = 'X-WT-UA';
+    public static $USER_IP = 'X-WT-IP';
+
+    // user agent client hints
+    public static $CLIENT_HINT_USER_AGENT = 'X-WT-SEC-CH-UA';
+    public static $CLIENT_HINT_USER_AGENT_FULL_VERSION_LIST = 'X-WT-SEC-CH-UA-FULL-VERSION-LIST';
+    public static $CLIENT_HINT_USER_AGENT_MODEL = 'X-WT-SEC-CH-UA-MODEL';
+    public static $CLIENT_HINT_USER_AGENT_MOBILE = 'X-WT-SEC-CH-UA-MOBILE';
+    public static $CLIENT_HINT_USER_AGENT_PLATFORM = 'X-WT-SEC-CH-UA-PLATFORM';
+    public static $CLIENT_HINT_USER_AGENT_PLATFORM_VERSION = 'X-WT-SEC-CH-UA-PLATFORM_VERSION';
 
     // predefined parameter
-    public static $EVER_ID = "eid";
-    public static $CUSTOM_EVER_ID = "ceid";
-    public static $PAGE_URL = "pu";
-    public static $ACTION_NAME = "ct";
-    public static $CAMPAIGN_ID = "mc";
-    public static $CAMPAIGN_ACTION = "mca";
-    public static $CUSTOMER_ID = "cd";
-    public static $ORDER_VALUE = "ov";
-    public static $ORDER_ID = "oi";
-    public static $CURRENCY = "cr";
-    public static $PAGE_NAME = "pn";
-    public static $SEARCH = "is";
-    public static $PRODUCT_ID = "ba";
-    public static $PRODUCT_COST = "co";
-    public static $PRODUCT_QUANTITY = "qn";
-    public static $PRODUCT_STATUS = "st";
-    public static $PIXEL_FEATURES = "pf";
+    public static $EVER_ID = 'eid';
+    public static $CUSTOM_EVER_ID = 'ceid';
+    public static $PAGE_URL = 'pu';
+    public static $ACTION_NAME = 'ct';
+    public static $CAMPAIGN_ID = 'mc';
+    public static $CAMPAIGN_ACTION = 'mca';
+    public static $CUSTOMER_ID = 'cd';
+    public static $ORDER_VALUE = 'ov';
+    public static $ORDER_ID = 'oi';
+    public static $CURRENCY = 'cr';
+    public static $PAGE_NAME = 'pn';
+    public static $SEARCH = 'is';
+    public static $PRODUCT_ID = 'ba';
+    public static $PRODUCT_COST = 'co';
+    public static $PRODUCT_QUANTITY = 'qn';
+    public static $PRODUCT_STATUS = 'st';
+    public static $PIXEL_FEATURES = 'pf';
 
     // predefined custom parameter and category
     // predefined urm category
@@ -74,19 +82,19 @@ class MappIntelligenceParameter
     public static $TRACKING_PLATFORM;
 
     // custom parameter and category
-    public static $CUSTOM_SESSION_PARAMETER = "cs";
-    public static $CUSTOM_PAGE_PARAMETER = "cp";
-    public static $CUSTOM_PRODUCT_PARAMETER = "cb";
-    public static $CUSTOM_ACTION_PARAMETER = "ck";
-    public static $CUSTOM_CAMPAIGN_PARAMETER = "cc";
-    public static $CUSTOM_PAGE_CATEGORY = "cg";
-    public static $CUSTOM_PRODUCT_CATEGORY = "ca";
-    public static $CUSTOM_URM_CATEGORY = "uc";
+    public static $CUSTOM_SESSION_PARAMETER = 'cs';
+    public static $CUSTOM_PAGE_PARAMETER = 'cp';
+    public static $CUSTOM_PRODUCT_PARAMETER = 'cb';
+    public static $CUSTOM_ACTION_PARAMETER = 'ck';
+    public static $CUSTOM_CAMPAIGN_PARAMETER = 'cc';
+    public static $CUSTOM_PAGE_CATEGORY = 'cg';
+    public static $CUSTOM_PRODUCT_CATEGORY = 'ca';
+    public static $CUSTOM_URM_CATEGORY = 'uc';
 
     // cookie names
-    public static $SMART_PIXEL_COOKIE_NAME = "wtstp_eid";
-    public static $PIXEL_COOKIE_NAME = "wt3_eid";
-    public static $SERVER_COOKIE_NAME_PREFIX = "wteid_";
+    public static $SMART_PIXEL_COOKIE_NAME = 'wtstp_eid';
+    public static $PIXEL_COOKIE_NAME = 'wt3_eid';
+    public static $SERVER_COOKIE_NAME_PREFIX = 'wteid_';
 }
 
 // predefined urm category

@@ -6,6 +6,7 @@ class MappIntelligenceProperties
     const TRACK_DOMAIN = 'trackDomain';
     const DEACTIVATE = 'deactivate';
     const DOMAIN = 'domain';
+    const LOG_LEVEL = 'logLevel';
     const USE_PARAMS_FOR_DEFAULT_PAGE_NAME = 'useParamsForDefaultPageName';
     const CONTAINS_INCLUDE = 'containsInclude';
     const CONTAINS_EXCLUDE = 'containsExclude';
