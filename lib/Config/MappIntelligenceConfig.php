@@ -651,7 +651,10 @@ class MappIntelligenceConfig
     public function setClientHintUserAgentPlatform($ch)
     {
         if ($ch) {
-            $this->clientHintUserAgentPlatform = $this->getOrDefault(rawurldecode($ch), $this->clientHintUserAgentPlatform);
+            $this->clientHintUserAgentPlatform = $this->getOrDefault(
+                rawurldecode($ch),
+                $this->clientHintUserAgentPlatform
+            );
         }
 
         return $this;

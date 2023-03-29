@@ -1,3 +1,12 @@
+<a name="1.1.0"></a>
+# 1.1.0 (2023-03-27)
+
+## Feature
+
+- Support new HTTP Client Hints Header (_[Integration and Configuration](https://documentation.mapp.com/latest/en/integration-and-configuration-12582753.html)_)
+- Include logging hierarchy with log level (_[Integration and Configuration](https://documentation.mapp.com/latest/en/integration-and-configuration-12582753.html)_)
+
+
 <a name="1.0.2"></a>
 # 1.0.2 (2023-02-01)
 

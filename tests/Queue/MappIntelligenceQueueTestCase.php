@@ -180,11 +180,17 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended("/^wt\\?p=600,0,,,,,[0-9]{13},0,,&.+/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA=" . $clientHintUserAgent . "/", $requests[0]);
-        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/", $requests[0]);
+        $this->assertRegExpExtended(
+            "/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/",
+            $requests[0]
+        );
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=" . $clientHintUserAgentModel . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
-        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/", $requests[0]);
+        $this->assertRegExpExtended(
+            "/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/",
+            $requests[0]
+        );
     }
 
     public function testWithClientHints2()
@@ -220,11 +226,17 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended("/^wt\\?p=300,0&.+/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA=" . $clientHintUserAgent . "/", $requests[0]);
-        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/", $requests[0]);
+        $this->assertRegExpExtended(
+            "/&X-WT-SEC-CH-UA-FULL-VERSION-LIST=" . $clientHintUserAgentFullVersionList . "/",
+            $requests[0]
+        );
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=" . $clientHintUserAgentModel . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
-        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/", $requests[0]);
+        $this->assertRegExpExtended(
+            "/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/",
+            $requests[0]
+        );
     }
 
     public function testWithClientHints3()
@@ -254,7 +266,15 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             ->setClientHintUserAgentPlatformVersion($clientHintUserAgentPlatformVersion);
 
         $queue = new MappIntelligenceQueue($mappIntelligenceConfig->build());
-        $queue->add("wt?p=300,0&X-WT-SEC-CH-UA=sec-ch-ua&X-WT-SEC-CH-UA-FULL-VERSION-LIST=sec-ch-ua-full-version-list&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version");
+        $queue->add(
+            "wt?p=300,0"
+            . "&X-WT-SEC-CH-UA=sec-ch-ua"
+            . "&X-WT-SEC-CH-UA-FULL-VERSION-LIST=sec-ch-ua-full-version-list"
+            . "&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model"
+            . "&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile"
+            . "&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform"
+            . "&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version"
+        );
 
         $requests = MappIntelligenceUnitUtil::getQueue($queue);
         $this->assertEquals(1, count($requests));

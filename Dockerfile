@@ -16,11 +16,6 @@ ARG XDEBUG_VERSION
 ARG RUNKIT_VERSION
 
 # Install and activate PHP xdebug and runkit
-#RUN pecl install \
-#        xdebug-${XDEBUG_VERSION} \
-#        runkit${RUNKIT_VERSION} \
-#    && docker-php-ext-enable xdebug runkit$(echo ${RUNKIT_VERSION} | head -c1)
-
 RUN pecl install xdebug-${XDEBUG_VERSION}
 RUN pecl install runkit${RUNKIT_VERSION}
 RUN docker-php-ext-enable xdebug
