@@ -188,7 +188,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
         $this->assertRegExpExtended(
-            "/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/",
+            "/&X-WT-SEC-CH-UA-PLATFORM-VERSION=" . $clientHintUserAgentPlatformVersion . "/",
             $requests[0]
         );
     }
@@ -234,7 +234,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=" . $clientHintUserAgentMobile . "/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=" . $clientHintUserAgentPlatform . "/", $requests[0]);
         $this->assertRegExpExtended(
-            "/&X-WT-SEC-CH-UA-PLATFORM_VERSION=" . $clientHintUserAgentPlatformVersion . "/",
+            "/&X-WT-SEC-CH-UA-PLATFORM-VERSION=" . $clientHintUserAgentPlatformVersion . "/",
             $requests[0]
         );
     }
@@ -273,7 +273,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
             . "&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model"
             . "&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile"
             . "&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform"
-            . "&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version"
+            . "&X-WT-SEC-CH-UA-PLATFORM-VERSION=sec-ch-ua-platform-version"
         );
 
         $requests = MappIntelligenceUnitUtil::getQueue($queue);
@@ -284,7 +284,7 @@ abstract class MappIntelligenceQueueTestCase extends MappIntelligenceExtendsTest
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MODEL=sec-ch-ua-model/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-MOBILE=sec-ch-ua-mobile/", $requests[0]);
         $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM=sec-ch-ua-platform/", $requests[0]);
-        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM_VERSION=sec-ch-ua-platform_version/", $requests[0]);
+        $this->assertRegExpExtended("/&X-WT-SEC-CH-UA-PLATFORM-VERSION=sec-ch-ua-platform-version/", $requests[0]);
     }
 
     public function testWithRemoteAddr()

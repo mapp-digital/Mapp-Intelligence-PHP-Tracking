@@ -8,7 +8,11 @@ require_once __DIR__ . '/../MappIntelligenceParameter.php';
  */
 class MappIntelligenceSession extends MappIntelligenceBasic
 {
+    const TEMPORARY_SESSION_ID_TYPE = '2.0.0';
+
     protected $loginStatus = '';
+    protected $temporarySessionId = '';
+    protected $temporarySessionIdType = '';
     protected $parameter = array();
 
     /**
@@ -26,6 +30,8 @@ class MappIntelligenceSession extends MappIntelligenceBasic
     {
         return array(
             'loginStatus' => MappIntelligenceParameter::$LOGIN_STATUS,
+            'temporarySessionId' => MappIntelligenceParameter::$TEMPORARY_SESSION_ID,
+            'temporarySessionIdType' => MappIntelligenceParameter::$TEMPORARY_SESSION_ID_TYPE,
             'parameter' => MappIntelligenceParameter::$CUSTOM_SESSION_PARAMETER
         );
     }
@@ -38,6 +44,19 @@ class MappIntelligenceSession extends MappIntelligenceBasic
     public function setLoginStatus($loginStatus)
     {
         $this->loginStatus = $loginStatus;
+
+        return $this;
+    }
+
+    /**
+     * @param string $tSessionId
+     *
+     * @return $this
+     */
+    public function setTemporarySessionId($tSessionId)
+    {
+        $this->temporarySessionId = $tSessionId;
+        $this->temporarySessionIdType = self::TEMPORARY_SESSION_ID_TYPE;
 
         return $this;
     }

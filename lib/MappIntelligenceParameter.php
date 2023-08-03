@@ -17,11 +17,13 @@ class MappIntelligenceParameter
     public static $CLIENT_HINT_USER_AGENT_MODEL = 'X-WT-SEC-CH-UA-MODEL';
     public static $CLIENT_HINT_USER_AGENT_MOBILE = 'X-WT-SEC-CH-UA-MOBILE';
     public static $CLIENT_HINT_USER_AGENT_PLATFORM = 'X-WT-SEC-CH-UA-PLATFORM';
-    public static $CLIENT_HINT_USER_AGENT_PLATFORM_VERSION = 'X-WT-SEC-CH-UA-PLATFORM_VERSION';
+    public static $CLIENT_HINT_USER_AGENT_PLATFORM_VERSION = 'X-WT-SEC-CH-UA-PLATFORM-VERSION';
 
     // predefined parameter
     public static $EVER_ID = 'eid';
     public static $CUSTOM_EVER_ID = 'ceid';
+    public static $TEMPORARY_SESSION_ID = 'fpv';
+    public static $TEMPORARY_SESSION_ID_TYPE = 'fpt';
     public static $PAGE_URL = 'pu';
     public static $ACTION_NAME = 'ct';
     public static $CAMPAIGN_ID = 'mc';

@@ -430,6 +430,121 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
+    public function testWithoutTemporarySessionId()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $page = new MappIntelligencePage('en.page.test');
+        $page->setCategory(1, 'page.test')
+            ->setCategory(2, 'en')
+            ->setCategory(3, 'page')
+            ->setCategory(4, 'test');
+
+        $session = new MappIntelligenceSession();
+        $session->setParameter(1, '1');
+
+        $customer = new MappIntelligenceCustomer('24');
+        $customer->setFirstName('John')
+            ->setLastName('Doe')
+            ->setEmail('john@doe.com');
+
+        $product1 = new MappIntelligenceProduct('065ee2b001');
+        $product1->setCost(59.99)->setQuantity(1)->setStatus($product1::CONFIRMATION);
+
+        $product2 = new MappIntelligenceProduct('085eo2f009');
+        $product2->setCost(49.99)->setQuantity(5)->setStatus($product2::CONFIRMATION);
+
+        $product3 = new MappIntelligenceProduct('995ee1k906');
+        $product3->setCost(15.99)->setQuantity(1)->setStatus($product3::CONFIRMATION);
+
+        $product4 = new MappIntelligenceProduct('abc');
+        $product4->setCost(0)->setQuantity(0)->setSoldOut(true)->setStatus($product4::CONFIRMATION);
+
+        $products = new MappIntelligenceProductCollection();
+        $products->add($product1)
+            ->add($product2)
+            ->add($product3)
+            ->add($product4);
+
+        $data = new MappIntelligenceDataMap();
+        $data->page($page)
+            ->action(null)
+            ->campaign(null)
+            ->order(new MappIntelligenceOrder(360.93))
+            ->session($session)
+            ->customer($customer)
+            ->product($products);
+
+        $this->assertEquals(true, $mappIntelligence->track($data));
+
+        $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+        $this->assertEquals(1, count($requests));
+        $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&/', $requests[0]);
+        $this->assertNotRegExpExtended('/\&fpv=.*/', $requests[0]);
+        $this->assertNotRegExpExtended('/\&fpt=.*/', $requests[0]);
+    }
+
+    public function testWithTemporarySessionId()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $page = new MappIntelligencePage('en.page.test');
+        $page->setCategory(1, 'page.test')
+            ->setCategory(2, 'en')
+            ->setCategory(3, 'page')
+            ->setCategory(4, 'test');
+
+        $session = new MappIntelligenceSession();
+        $session->setParameter(1, '1')
+            ->setTemporarySessionId('abc123def456');
+
+        $customer = new MappIntelligenceCustomer('24');
+        $customer->setFirstName('John')
+            ->setLastName('Doe')
+            ->setEmail('john@doe.com');
+
+        $product1 = new MappIntelligenceProduct('065ee2b001');
+        $product1->setCost(59.99)->setQuantity(1)->setStatus($product1::CONFIRMATION);
+
+        $product2 = new MappIntelligenceProduct('085eo2f009');
+        $product2->setCost(49.99)->setQuantity(5)->setStatus($product2::CONFIRMATION);
+
+        $product3 = new MappIntelligenceProduct('995ee1k906');
+        $product3->setCost(15.99)->setQuantity(1)->setStatus($product3::CONFIRMATION);
+
+        $product4 = new MappIntelligenceProduct('abc');
+        $product4->setCost(0)->setQuantity(0)->setSoldOut(true)->setStatus($product4::CONFIRMATION);
+
+        $products = new MappIntelligenceProductCollection();
+        $products->add($product1)
+            ->add($product2)
+            ->add($product3)
+            ->add($product4);
+
+        $data = new MappIntelligenceDataMap();
+        $data->page($page)
+            ->action(null)
+            ->campaign(null)
+            ->order(new MappIntelligenceOrder(360.93))
+            ->session($session)
+            ->customer($customer)
+            ->product($products);
+
+        $this->assertEquals(true, $mappIntelligence->track($data));
+
+        $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+        $this->assertEquals(1, count($requests));
+        $this->assertRegExpExtended('/^wt\?p=600,en\.page\.test,,,,,[0-9]{13},0,,\&/', $requests[0]);
+        $this->assertRegExpExtended('/\&fpv=abc123def456/', $requests[0]);
+        $this->assertRegExpExtended('/\&fpt=2\.0\.0/', $requests[0]);
+    }
+
     /**
      * setUserId
      */

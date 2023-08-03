@@ -45,6 +45,20 @@ abstract class MappIntelligenceExtendsTestCase extends PHPUnit\Framework\TestCas
     }
 
     /**
+     * @param string $pattern
+     * @param string $string
+     * @param string $message
+     */
+    public function assertNotRegExpExtended($pattern, $string, $message = '')
+    {
+        if (method_exists($this, 'assertDoesNotMatchRegularExpression')) {
+            $this->assertDoesNotMatchRegularExpression($pattern, $string, $message);
+        } else {
+            $this->assertNotRegExp($pattern, $string, $message);
+        }
+    }
+
+    /**
      * @param object|string $classOrObject
      * @param string $attributeName
      * @return mixed
