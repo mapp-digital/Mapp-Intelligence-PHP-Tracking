@@ -65,6 +65,33 @@ class MappIntelligenceProductTest extends MappIntelligenceExtendsTestCase
         $this->assertEquals('add', $data['status']);
     }
 
+    public function testSetStatusAddToCart()
+    {
+        $product = new MappIntelligenceProduct();
+        $product->setStatus($product::ADD_TO_CART);
+
+        $data = $product->getData();
+        $this->assertEquals('add', $data['status']);
+    }
+
+    public function testSetStatusDeleteFromCart()
+    {
+        $product = new MappIntelligenceProduct();
+        $product->setStatus($product::DELETE_FROM_CART);
+
+        $data = $product->getData();
+        $this->assertEquals('del', $data['status']);
+    }
+
+    public function testSetStatusCheckout()
+    {
+        $product = new MappIntelligenceProduct();
+        $product->setStatus($product::CHECKOUT);
+
+        $data = $product->getData();
+        $this->assertEquals('checkout', $data['status']);
+    }
+
     public function testSetStatusConfirmation()
     {
         $product = new MappIntelligenceProduct();
@@ -72,6 +99,24 @@ class MappIntelligenceProductTest extends MappIntelligenceExtendsTestCase
 
         $data = $product->getData();
         $this->assertEquals('conf', $data['status']);
+    }
+
+    public function testSetStatusAddToWishlist()
+    {
+        $product = new MappIntelligenceProduct();
+        $product->setStatus($product::ADD_TO_WISHLIST);
+
+        $data = $product->getData();
+        $this->assertEquals('add-wl', $data['status']);
+    }
+
+    public function testSetStatusDeleteFromWishlist()
+    {
+        $product = new MappIntelligenceProduct();
+        $product->setStatus($product::DELETE_FROM_WISHLIST);
+
+        $data = $product->getData();
+        $this->assertEquals('del-wl', $data['status']);
     }
 
     public function testSetParameter()

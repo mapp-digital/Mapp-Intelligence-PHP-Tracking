@@ -10,7 +10,12 @@ class MappIntelligenceProduct extends MappIntelligenceBasic
 {
     const VIEW = 'view';
     const BASKET = 'add';
+    const ADD_TO_CART = 'add';
+    const DELETE_FROM_CART = 'del';
+    const CHECKOUT = 'checkout';
     const CONFIRMATION = 'conf';
+    const ADD_TO_WISHLIST = 'add-wl';
+    const DELETE_FROM_WISHLIST = 'del-wl';
 
     protected $id = '';
     protected $cost = 0;
@@ -91,7 +96,14 @@ class MappIntelligenceProduct extends MappIntelligenceBasic
      */
     public function setStatus($status)
     {
-        if ($status === self::VIEW || $status === self::BASKET || $status === self::CONFIRMATION) {
+        if ($status === self::VIEW
+            || $status === self::BASKET
+            || $status === self::DELETE_FROM_CART
+            || $status === self::CHECKOUT
+            || $status === self::CONFIRMATION
+            || $status === self::ADD_TO_WISHLIST
+            || $status === self::DELETE_FROM_WISHLIST
+        ) {
             $this->status = $status;
         }
 

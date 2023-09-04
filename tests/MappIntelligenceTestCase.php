@@ -183,6 +183,40 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
     }
 
+    public function testSimpleProductData()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $status = array(
+            MappIntelligenceProduct::VIEW => 'view',
+            MappIntelligenceProduct::BASKET => 'add',
+            MappIntelligenceProduct::DELETE_FROM_CART => 'del',
+            MappIntelligenceProduct::CHECKOUT => 'checkout',
+            MappIntelligenceProduct::CONFIRMATION => 'conf',
+            MappIntelligenceProduct::ADD_TO_WISHLIST => 'add-wl',
+            MappIntelligenceProduct::DELETE_FROM_WISHLIST => 'del-wl',
+        );
+
+        foreach ($status as $key => $value) {
+            $this->assertEquals(true, $mappIntelligence->track(array(
+                MappIntelligenceParameter::$PRODUCT_ID => '065ee2b001',
+                MappIntelligenceParameter::$PRODUCT_COST => '59.99',
+                MappIntelligenceParameter::$PRODUCT_QUANTITY => '1',
+                MappIntelligenceParameter::$PRODUCT_STATUS => $key
+            )));
+
+            $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+            $request = $requests[count($requests) - 1];
+            $this->assertRegExpExtended('/\&ba=065ee2b001/', $request);
+            $this->assertRegExpExtended('/\&co=59.99/', $request);
+            $this->assertRegExpExtended('/\&qn=1/', $request);
+            $this->assertRegExpExtended('/\&st=' . $value . '/', $request);
+        }
+    }
+
     public function testParameterMap1()
     {
         $mappIntelligence = MappIntelligence::getInstance(array(
@@ -245,6 +279,41 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&qn=1%3B5%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
         $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
+    }
+
+    public function testProductParameterMap()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $status = array(
+            MappIntelligenceProduct::VIEW => 'view',
+            MappIntelligenceProduct::BASKET => 'add',
+            MappIntelligenceProduct::DELETE_FROM_CART => 'del',
+            MappIntelligenceProduct::CHECKOUT => 'checkout',
+            MappIntelligenceProduct::CONFIRMATION => 'conf',
+            MappIntelligenceProduct::ADD_TO_WISHLIST => 'add-wl',
+            MappIntelligenceProduct::DELETE_FROM_WISHLIST => 'del-wl',
+        );
+
+        foreach ($status as $key => $value) {
+            $parameter = new MappIntelligenceParameterMap();
+            $parameter->add('ba', '065ee2b001')
+                ->add('co', '59.99')
+                ->add('qn', '1')
+                ->add('st', $key);
+
+            $this->assertEquals(true, $mappIntelligence->track($parameter));
+
+            $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+            $request = $requests[count($requests) - 1];
+            $this->assertRegExpExtended('/\&ba=065ee2b001/', $request);
+            $this->assertRegExpExtended('/\&co=59.99/', $request);
+            $this->assertRegExpExtended('/\&qn=1/', $request);
+            $this->assertRegExpExtended('/\&st=' . $value . '/', $request);
+        }
     }
 
     public function testDataObject1()
@@ -325,6 +394,40 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertRegExpExtended('/\&cb760=0%3B0%3B0%3B1/', $requests[0]);
         $this->assertRegExpExtended('/\&st=conf/', $requests[0]);
         $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
+    }
+
+    public function testProductDataObject()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $status = array(
+            MappIntelligenceProduct::VIEW => 'view',
+            MappIntelligenceProduct::BASKET => 'add',
+            MappIntelligenceProduct::DELETE_FROM_CART => 'del',
+            MappIntelligenceProduct::CHECKOUT => 'checkout',
+            MappIntelligenceProduct::CONFIRMATION => 'conf',
+            MappIntelligenceProduct::ADD_TO_WISHLIST => 'add-wl',
+            MappIntelligenceProduct::DELETE_FROM_WISHLIST => 'del-wl',
+        );
+
+        foreach ($status as $key => $value) {
+            $product1 = new MappIntelligenceProduct('065ee2b001');
+            $product1->setCost(59.99)->setQuantity(1)->setStatus($key);
+
+            $this->assertEquals(true, $mappIntelligence->track(array(
+                'product' => array($product1)
+            )));
+
+            $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+            $request = $requests[count($requests) - 1];
+            $this->assertRegExpExtended('/\&ba=065ee2b001/', $request);
+            $this->assertRegExpExtended('/\&co=59.99/', $request);
+            $this->assertRegExpExtended('/\&qn=1/', $request);
+            $this->assertRegExpExtended('/\&st=' . $value . '/', $request);
+        }
     }
 
     public function testDataMap1()
@@ -428,6 +531,44 @@ abstract class MappIntelligenceTestCase extends MappIntelligenceExtendsTestCase
         $this->assertEquals(1, count($requests));
         $this->assertRegExpExtended('/^wt\?p=600,0,,,,,[0-9]{13},0,,\&.+$/', $requests[0]);
         $this->assertTrue(MappIntelligenceUnitUtil::checkStatistics($requests[0], '14'));
+    }
+
+    public function testProductDataMap()
+    {
+        $mappIntelligence = MappIntelligence::getInstance(array(
+            'trackId' => '111111111111111',
+            'trackDomain' => 'analytics01.wt-eu02.net'
+        ));
+
+        $status = array(
+            MappIntelligenceProduct::VIEW => 'view',
+            MappIntelligenceProduct::BASKET => 'add',
+            MappIntelligenceProduct::DELETE_FROM_CART => 'del',
+            MappIntelligenceProduct::CHECKOUT => 'checkout',
+            MappIntelligenceProduct::CONFIRMATION => 'conf',
+            MappIntelligenceProduct::ADD_TO_WISHLIST => 'add-wl',
+            MappIntelligenceProduct::DELETE_FROM_WISHLIST => 'del-wl',
+        );
+
+        foreach ($status as $key => $value) {
+            $product1 = new MappIntelligenceProduct('065ee2b001');
+            $product1->setCost(59.99)->setQuantity(1)->setStatus($key);
+
+            $products = new MappIntelligenceProductCollection();
+            $products->add($product1);
+
+            $data = new MappIntelligenceDataMap();
+            $data->product($products);
+
+            $this->assertEquals(true, $mappIntelligence->track($data));
+
+            $requests = MappIntelligenceUnitUtil::getQueue(MappIntelligenceUnitUtil::getQueue($mappIntelligence));
+            $request = $requests[count($requests) - 1];
+            $this->assertRegExpExtended('/\&ba=065ee2b001/', $request);
+            $this->assertRegExpExtended('/\&co=59.99/', $request);
+            $this->assertRegExpExtended('/\&qn=1/', $request);
+            $this->assertRegExpExtended('/\&st=' . $value . '/', $request);
+        }
     }
 
     public function testWithoutTemporarySessionId()
